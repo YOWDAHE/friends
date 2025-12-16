@@ -125,5 +125,6 @@
 }
 
 .font-rage {
-  font-family: var(--font-rage);
+  font-family: var(--font-rage) !important;
+  font-style: italic;
 }

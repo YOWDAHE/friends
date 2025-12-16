@@ -61,7 +61,7 @@ export function Header() {
 			>
 				{/* Blur / background layer – only when scrolled */}
 				{scrolledPastTop && (
-					<div className="absolute inset-0 z-10 bg-white/10 backdrop-blur-[20px]" />
+					<div className="absolute inset-0 z-10 bg-white/30 backdrop-blur-[20px]" />
 				)}
 
 				<div className="relative z-20 mx-auto flex h-16 items-center justify-between px-4 md:h-24 md:px-15">

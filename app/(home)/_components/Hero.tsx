@@ -5,20 +5,20 @@ import Link from "next/link";
 import React from "react";
 import HeroGallery from "./HeroGallery";
 
-export const rage = localFont({
-	src: [
-		{
-			path: "../../../public/fonts/rage_italic.woff2",
-			weight: "400",
-			style: "italic",
-		},
-	],
-	variable: "--font-rage",
-});
+// export const rage = localFont({
+// 	src: [
+// 		{
+// 			path: "../../../public/fonts/rage_italic.woff2",
+// 			weight: "400",
+// 			style: "italic",
+// 		},
+// 	],
+// 	variable: "--font-rage",
+// });
 
 function Hero() {
 	return (
-		<div className="relative overflow-y-hidden">
+		<div className="relative overflow-x-clip">
 			<div className="absolute inset-0 md:backdrop-blur-[200px] backdrop-blur-[100px] h-[3000px] z-10"></div>
 
 			{/* color balls */}
