@@ -23,7 +23,8 @@ const items = [
 
 function Menu() {
 	return (
-		<div className="relative overflow-y-hidden min-h-screen">
+        <div className="relative overflow-y-hidden min-h-screen">
+            
 			{/* color balls */}
 			<div className="hidden md:block">
 				<div className="absolute bg-[#B700FF] size-100 rounded-full bottom-100 right-10"></div>

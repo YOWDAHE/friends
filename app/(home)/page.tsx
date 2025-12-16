@@ -3,6 +3,10 @@ import { Header } from "../components/Header";
 import Hero from "./_components/Hero";
 import Menu from "./_components/Menu";
 import GalleryPreview from "./_components/GalleryPreview";
+import Testimonials from "./_components/Testimonials";
+import Upcoming from "../components/Upcoming";
+import Location from "./_components/Location";
+import ReserveSection from "./_components/ReserveSection";
 
 export default function Home() {
 	return (
@@ -11,6 +15,10 @@ export default function Home() {
       <Hero />
       <Menu />
       <GalleryPreview />
+      <Testimonials />
+      <Upcoming />
+      <Location />
+      <ReserveSection />
 		</div>
 	);
 }
