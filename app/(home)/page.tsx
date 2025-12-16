@@ -7,6 +7,8 @@ import Testimonials from "./_components/Testimonials";
 import Upcoming from "../components/Upcoming";
 import Location from "./_components/Location";
 import ReserveSection from "./_components/ReserveSection";
+import ChefSpotlight from "./_components/ChefSpotlight";
+import Footer from "../components/Footer";
 
 export default function Home() {
 	return (
@@ -19,6 +21,8 @@ export default function Home() {
       <Upcoming />
       <Location />
       <ReserveSection />
+      <ChefSpotlight />
+      <Footer />
 		</div>
 	);
 }
