@@ -23,8 +23,7 @@ const items = [
 
 function Menu() {
 	return (
-        <div className="relative overflow-y-hidden min-h-screen">
-            
+		<div className="relative overflow-y-hidden min-h-screen flex justify-center w-full">
 			{/* color balls */}
 			<div className="hidden md:block">
 				<div className="absolute bg-[#B700FF] size-100 rounded-full bottom-100 right-10"></div>
@@ -34,7 +33,7 @@ function Menu() {
 				<div className="absolute bg-[#FF6200]/70 size-70 rounded-full bottom-0 left-0"></div>
 				<div className="absolute bg-[#B700FF]/70 size-50 rounded-full top-100 right-0"></div>
 			</div>
-			<div className="z-20 relative mt-20">
+			<div className="z-20 relative mt-20 max-w-[1400px] w-full">
 				<section className="relative z-10 md:px-8 px-4">
 					<div className="flex w-full flex-col gap-10 md:px-8">
 						{/* Heading */}

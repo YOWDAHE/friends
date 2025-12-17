@@ -4,7 +4,7 @@ import React from "react";
 
 function ReserveSection() {
 	return (
-		<div className="relative min-h-screen md:px-8 overflow-x-clip">
+		<div className="relative min-h-screen md:px-8 overflow-x-clip flex justify-center w-full">
 			{/* <div className="absolute inset-0 md:backdrop-blur-[200px] backdrop-blur-[100px] h-[3000px] z-10"></div> */}
 			{/* color balls */}
 			<div className="hidden md:block">
@@ -15,7 +15,7 @@ function ReserveSection() {
 				<div className="absolute bg-[#FF6200]/70 size-70 rounded-full bottom-0 left-0"></div>
 				<div className="absolute bg-[#B700FF]/70 size-50 rounded-full top-100 right-0"></div>
 			</div>
-			<div className="z-20 relative mt-20">
+			<div className="z-20 relative mt-20 max-w-[1400px] w-full">
 				<section className="relative z-10 md:py-20 py-12">
 					<div className="mx-auto flex w-full flex-col gap-10 px-4 md:px-8">
 						{/* Heading + description */}

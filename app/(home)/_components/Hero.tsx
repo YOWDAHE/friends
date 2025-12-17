@@ -18,7 +18,7 @@ import HeroGallery from "./HeroGallery";
 
 function Hero() {
 	return (
-		<div className="relative overflow-x-clip">
+		<div className="relative overflow-x-clip flex justify-center w-full">
 			<div className="absolute inset-0 md:backdrop-blur-[200px] backdrop-blur-[100px] h-[3000px] z-10"></div>
 
 			{/* color balls */}
@@ -36,7 +36,7 @@ function Hero() {
 				<div className="absolute bg-[#FF00C8] size-50 rounded-full top-[400px] right-0"></div>
 			</div>
 
-			<div className="flex flex-col md:flex-row min-h-screen md:pt-52 pt-40 pb-20 relative z-20">
+			<div className="flex flex-col md:flex-row min-h-screen md:pt-52 pt-40 pb-20 relative z-20 max-w-[1400px] w-full">
 				<div className="flex-2/3 md:pl-16 pl-4">
 					<div>
 						<p className="lg:text-[100px] text-5xl font-black lg:leading-24">

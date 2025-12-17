@@ -17,8 +17,8 @@ const images = [
 
 function GalleryPreview() {
 	return (
-		<section className="relative z-10 md:py-24 py-4 md:px-8 mt-40 md:mt-20">
-			<div className="flex w-full flex-col gap-10 px-4 md:px-8">
+		<section className="relative z-10 md:py-24 py-4 md:px-8 mt-40 md:mt-20 flex justify-center w-full">
+			<div className="flex w-full flex-col gap-10 px-4 md:px-8 max-w-[1400px]">
 				{/* Heading + copy */}
 				<div className="flex flex-col gap-4 md:max-w-4xl">
 					<div className="font-rage md:text-7xl text-5xl leading-[40px] md:leading-[60px]">
