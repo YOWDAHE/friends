@@ -22,14 +22,14 @@ function Upcoming() {
 	return (
 		<div className="relative overflow-y-hidden min-h-screen md:px-8 pb-10 flex justify-center w-full">
 			{/* color balls */}
-			<div className="hidden md:block">
+			{/* <div className="hidden md:block">
 				<div className="absolute bg-[#B700FF] size-100 rounded-full bottom-100 right-10"></div>
 				<div className="absolute bg-[#FF0000] size-80 rounded-full top-[50%] right-100"></div>
 			</div>
 			<div className="md:hidden">
 				<div className="absolute bg-[#B700FF]/70 size-70 rounded-full bottom-20 left-0"></div>
 				<div className="absolute bg-[#FF6200]/70 size-50 rounded-full top-100 right-0"></div>
-			</div>
+			</div> */}
 			<div className="z-20 relative mt-20 max-w-[1400px] w-full">
 				<section className="relative z-10 md:py-24 py-16">
 					<div className="mx-auto flex w-full flex-col gap-10 px-4 md:px-8">

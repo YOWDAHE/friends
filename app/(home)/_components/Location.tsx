@@ -3,7 +3,7 @@ import React from "react";
 function Location() {
 	return (
 		<div className="relative min-h-screen md:px-8 flex items-center justify-center w-full">
-			<div className="absolute inset-0 md:backdrop-blur-[200px] backdrop-blur-[100px] h-[3800px] z-10"></div>
+			<div className="absolute inset-0 md:backdrop-blur-[200px] backdrop-blur-[100px] h-[3200px] z-10"></div>
 			{/* color balls */}
 			<div className="hidden md:block">
 				<div className="absolute bg-[#B700FF] size-100 rounded-full top-[50%] right-10"></div>

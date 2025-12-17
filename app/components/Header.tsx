@@ -94,9 +94,9 @@ export function Header() {
 							);
 						})}
 						<div className="hidden md:block">
-							<Button className="rounded-xs bg-black px-6 py-2 font-medium text-white hover:bg-black/80">
+							<Link href="/reserve" className="rounded-xs bg-black px-6 py-2 font-medium text-white hover:bg-black/80">
 								Reserve
-							</Button>
+							</Link>
 						</div>
 					</nav>
 
