@@ -43,14 +43,15 @@ function Hero() {
 							Where Collaboration Meets Culinary Delight.
 						</p>
 						<div className="space-x-4 mt-10">
-							<Button size="lg" className=" rounded-sm">
-								Reserve a spot
+							<Button asChild size="lg" className=" rounded-sm">
+								<Link href="/reserve">Reserve a spot</Link>
 							</Button>
 							<Button
+								asChild
 								size="lg"
 								className="bg-white text-black rounded-sm hover:bg-white/80"
 							>
-								Menu
+								<Link href="/menu">Menu</Link>
 							</Button>
 						</div>
 					</div>

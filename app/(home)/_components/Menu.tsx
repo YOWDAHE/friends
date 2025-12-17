@@ -1,16 +1,17 @@
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 const items = [
 	{
 		title: "Drinks",
-		description: "We have over 20 items under drinks. Click here to explore more",
+		description: "We have different items under drinks. Click here to explore more",
 		image: "/images/hero_section/menu/1.png",
 	},
 	{
 		title: "Dinner",
 		description:
-			"We have over 30 meals you can enjoy. Click here to explore more",
+			"We have variety of meals you can enjoy. Click here to explore more",
 		image: "/images/hero_section/menu/2.png",
 	},
 	{
@@ -42,7 +43,8 @@ function Menu() {
 						{/* Cards */}
 						<div className="grid grid-cols-1 gap-6 md:grid-cols-3">
 							{items.map((item) => (
-								<article
+								<Link
+									href="/menu"
 									key={item.title}
 									className="group relative overflow-hidden rounded-sm bg-black/5"
 								>
@@ -62,7 +64,7 @@ function Menu() {
 											</p>
 										</div>
 									</div>
-								</article>
+								</Link>
 							))}
 						</div>
 					</div>
