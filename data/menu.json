@@ -1,0 +1,718 @@
+{
+  "categories": [
+    {
+      "id": "happy-hour",
+      "name": "Happy Hour",
+      "tagline": "The Longest Happy Hour In America Mon-Friday 12-7PM",
+      "sections": [
+        {
+          "id": "happy-hour-bites",
+          "title": "Happy Hour Bites",
+          "image": "/images/menu/happy_hour_bites.png",
+          "imagePosition": "left",
+          "items": [
+            { "name": "Slider (1)*", "price": 2.99 },
+            { "name": "Quesadilla (1 piece)", "price": 2.99 },
+            { "name": "Fries", "price": 3.99 },
+            { "name": "Truffle Fries", "price": 4.99 },
+            { "name": "Veggies Spring Rolls (3)", "price": 6.99 },
+            { "name": "Mozzarella Sticks (4)", "price": 7.99 },
+            { "name": "Cheesesteak Egg Rolls (2)", "price": 7.99 },
+            { "name": "Wings (4)", "price": 4.99 },
+            { "name": "Bang Bang Shrimp (4)*", "price": 8.99 },
+            { "name": "Vegan Burger", "price": 9.99 },
+            {
+              "name": "Nachos",
+              "price": 9.99,
+              "description": "Topped with seasoned ground beef, warm queso sauce, and fresh pico de gallo. (Served as is—no modifications)."
+            }
+          ]
+        },
+        {
+          "id": "happy-hour-drinks",
+          "title": "Happy Hour Drinks",
+          "image": "/images/menu/happy_hour_drinks.png",
+          "imagePosition": "right",
+          "items": [
+            { "name": "Beers", "price": 4.99 },
+            { "name": "White/Red Wine", "price": 6.99 },
+            { "name": "Well Shots", "price": 7.99 },
+            { "name": "Premium Shots", "price": 9.99 },
+            { "name": "Friends Cocktails", "price": 9.99 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "appetizers",
+      "name": "Appetizers",
+      "sections": [
+        {
+          "id": "appetizers-main",
+          "title": "Appetizers",
+          "image": "/images/menu/appetizers.png",
+          "imagePosition": "left",
+          "items": [
+            { "name": "French Fries", "price": 7.99 },
+            { "name": "Truffle Fries", "price": 10.99 },
+            {
+              "name": "Chicken Tenders",
+              "price": 15.99,
+              "description": "Crispy chicken marinated in buttermilk, then fried golden brown. Served with a side of French fries and honey mustard."
+            },
+            {
+              "name": "Philly Cheesesteak Egg Rolls*",
+              "price": 12.99,
+              "description": "Three (3) egg rolls filled with Philly Cheesesteak. Served with chili sauce."
+            },
+            {
+              "name": "Veggie Spring Rolls",
+              "price": 11.99,
+              "description": "Five (5) spring rolls filled with vegetables, rolled, and fried."
+            },
+            {
+              "name": "Crab Cake*",
+              "price": 13.99,
+              "description": "Five (5) pieces of deep-fried crab balls drizzled with chipotle sauce."
+            },
+            {
+              "name": "Wings",
+              "price": 16.99,
+              "description": "(6) wings tossed in your choice of sauce: Sweet Chili, Buffalo, Old Bay, Honey Old Bay or Lemon Garlic. Choose Ranch or Blue Cheese. Served with a side of fries."
+            },
+            {
+              "name": "Vegan Cauliflower",
+              "price": 15.99,
+              "description": "A little spicy, immensely flavorful, and incredibly delicious. Crispy on the outside, tender in the middle. Served with a side of fries."
+            },
+            { "name": "Mozzarella Sticks (6)", "price": 12.99 },
+            {
+              "name": "Spicy Bang Bang Chicken Tenders",
+              "price": 15.99,
+              "description": "Tossed in our sweet spicy chili sauce. Served with fries."
+            },
+            { "name": "Southwest Chicken Egg Rolls", "price": 12.99 },
+            {
+              "name": "Spicy Bang Bang Shrimp*",
+              "price": 16.99,
+              "description": "(5) crunchy tempura shrimp tossed in our spicy sweet chili sauce."
+            },
+            {
+              "name": "Caesar Salad*",
+              "price": 9.99,
+              "description": "Classic Caesar salad with your choice of protein. Chicken: $16.99, Shrimp: $18.99, Salmon: $21.99."
+            },
+            {
+              "name": "Mountain Wings Platter",
+              "price": 38.99,
+              "description": "18 wings with your choice of Sweet Chili, Buffalo, Lemon Garlic Parmesan, or chipotle sauce."
+            },
+            {
+              "name": "Nachos",
+              "price": 12.99,
+              "description": "Topped with seasoned ground beef, warm queso sauce, and fresh pico de gallo. (Served as is—no modifications)."
+            },
+            {
+              "name": "Spinach Artichoke Dip",
+              "price": 12.99,
+              "description": "A creamy blend of sautéed spinach, tender artichoke hearts, and melted cheeses, served warm with crispy tortilla chips."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "entrees",
+      "name": "Entrees",
+      "sections": [
+        {
+          "id": "entrees-main",
+          "title": "Entrees",
+          "image": "/images/menu/entries.png",
+          "imagePosition": "right",
+          "items": [
+            {
+              "name": "Tibs*",
+              "price": 17.99,
+              "description": "Stir-fry steak, tomato, lettuce, onion, green pepper, Ethiopian butter, NebFoto sauce on a bed of your choice of basmati rice or penne pasta."
+            },
+            {
+              "name": "Grilled Shrimp*",
+              "price": 24.99,
+              "description": "Grilled shrimp with sautéed bell pepper, onion, cherry tomato, and broccoli. Choose a side: rice or mashed potatoes."
+            },
+            {
+              "name": "Grilled Chicken Breast",
+              "price": 21.99,
+              "description": "Grilled chicken with sautéed bell pepper, onion, cherry tomato, and broccoli. Choose a side: rice or mashed potatoes."
+            },
+            {
+              "name": "Friends Salmon*",
+              "price": 26.99,
+              "description": "Grilled salmon with sautéed bell pepper, onion, cherry tomato, and broccoli. Choose a side: rice or mashed potatoes."
+            },
+            {
+              "name": "Glazed Salmon*",
+              "price": 26.99,
+              "description": "Glazed salmon with sautéed bell pepper, onion, cherry tomato, and broccoli. Choose a side: rice or mashed potatoes."
+            },
+            {
+              "name": "Fajitas",
+              "price": 13.99,
+              "description": "A sizzling medley of red peppers, red onions, and cherry tomatoes, served with rice. Shrimp – $17.99*, Beef – $16.99*, Chicken – $15.99, Veggie – $13.99."
+            },
+            {
+              "name": "Lamb Chops*",
+              "price": 32.0,
+              "description": "Lamb chops with sautéed bell pepper, onion, cherry tomato, and broccoli. Choose a side: rice or mashed potatoes."
+            },
+            {
+              "name": "Rib Eye Steak*",
+              "price": 29.99,
+              "description": "Generous 16 oz. cut, thick and juicy with sautéed bell pepper, onion, cherry tomato, and broccoli. Choice of rice, mashed potatoes, or french fries."
+            },
+            {
+              "name": "Friends Pasta",
+              "price": 15.99,
+              "description": "Penne with Alfredo, tomato, or pink sauce. Comes with garlic bread. Beef: $19.99*, Chicken: $22.99, Shrimp: $25.99*, Lamb Chops: $31.98*, Salmon: $29.99*."
+            },
+            {
+              "name": "Friends Stir Fry",
+              "price": 15.99,
+              "description": "Eggs, bell peppers, broccoli, and onion with your choice of protein mixed with basmati curry rice. Veggie: $15.99, Chicken: $17.99, Tibs: $19.99*, Shrimp: $21.99*."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sandwiches",
+      "name": "Sandwiches",
+      "sections": [
+        {
+          "id": "sandwiches-main",
+          "title": "Sandwiches",
+          "image": "/images/menu/appetizers.png",
+          "imagePosition": "left",
+          "items": [
+            {
+              "name": "Shawarma",
+              "price": 14.99,
+              "description": "Your choice of beef or chicken wrapped in a tortilla with tomato, lettuce, onion, and tahini sauce. Served with a side of French fries."
+            },
+            {
+              "name": "Friends Burger*",
+              "price": 17.99,
+              "description": "Tender and juicy beef with American cheese, smothered with spicy chipotle sauce. Served with a side of French fries and a pickle."
+            },
+            {
+              "name": "Vegan Burger",
+              "price": 18.99,
+              "description": "Plant-based burger with American cheese, homemade vegan sauce, tomato, and lettuce. Served with a side of French fries and a pickle."
+            },
+            {
+              "name": "@NebFoto's Tibs Panini",
+              "price": 17.5,
+              "description": "Stir-fry, tomato, lettuce, onion, green pepper, Ethiopian butter, cheddar cheese and NebFoto sauce on ciabatta bread. Served with a side of French fries. Chicken or Beef*: $17.50, Crab Cake: $19.99*, Shrimp: $21.99*."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vegan",
+      "name": "Vegan",
+      "sections": [
+        {
+          "id": "vegan-main",
+          "title": "Vegan",
+          "image": "/images/menu/appetizers.png",
+          "imagePosition": "right",
+          "items": [
+            {
+              "name": "Pasta",
+              "price": 15.99,
+              "description": "Penne pasta with marinara sauce. Add vegan meatballs for $5.00."
+            },
+            {
+              "name": "Vegan Cauliflower",
+              "price": 13.99,
+              "description": "A little spicy, immensely flavorful, and incredibly delicious."
+            },
+            {
+              "name": "Veggie Spring Rolls",
+              "price": 11.99,
+              "description": "Five (5) spring rolls filled with vegetables, rolled and fried."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dessert",
+      "name": "Dessert",
+      "sections": [
+        {
+          "id": "dessert-main",
+          "title": "Dessert",
+          "image": "/images/menu/appetizers.png",
+          "imagePosition": "left",
+          "items": [
+            { "name": "Coffee Cake", "price": 8.99 },
+            { "name": "Hot & Cold Romance", "price": 12.99 },
+            { "name": "Golden Sticks", "price": 10.99 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cocktails",
+      "name": "Cocktails",
+      "sections": [
+        {
+          "id": "signature-cocktails",
+          "title": "Cocktails",
+          "image": "/images/menu/happy_hour_drinks.png",
+          "imagePosition": "left",
+          "items": [
+            {
+              "name": "Snowflake Margarita",
+              "price": 12.99,
+              "description": "Tequila, triple sec, coconut cream, lime juice."
+            },
+            {
+              "name": "Winter Wonderland",
+              "price": 12.99,
+              "description": "Rum, strawberry purée, lemon juice, grenadine."
+            },
+            {
+              "name": "Friends with Benefits",
+              "price": 15.99,
+              "description": "Vodka and passionfruit liqueur shaken with pineapple, strawberry, and simple syrup, topped with champagne."
+            },
+            {
+              "name": "Close Friends",
+              "price": 15.99,
+              "description": "Strawberry-passion fruit tequila lemon drop with added sparkle."
+            },
+            {
+              "name": "Friends Old Fashioned",
+              "price": 15.99,
+              "description": "House bourbon or rye whiskey, simple syrup, Angostura bitters, large ice cube, orange peel garnish."
+            },
+            {
+              "name": "Friends Margarita",
+              "price": 15.99,
+              "description": "House tequila, lime juice, triple sec, salt or sugar rim, lime wedge."
+            },
+            {
+              "name": "Friends Mojito",
+              "price": 15.99,
+              "description": "House white rum, lime juice, simple syrup, mint, club soda."
+            },
+            {
+              "name": "Friends Cosmopolitan",
+              "price": 15.99,
+              "description": "House vodka, triple sec, lime juice, cranberry juice."
+            },
+            {
+              "name": "Friends Whiskey Sour",
+              "price": 15.99,
+              "description": "House bourbon, lemon juice, simple syrup, lemon wheel and cherry garnish."
+            },
+            {
+              "name": "Friends Daiquiri",
+              "price": 15.99,
+              "description": "House white rum, lime juice, simple syrup."
+            },
+            {
+              "name": "Friends Piña Colada",
+              "price": 15.99,
+              "description": "House white rum, coconut cream, pineapple juice."
+            },
+            {
+              "name": "Friends Espresso Martini",
+              "price": 15.99,
+              "description": "House vodka, freshly brewed espresso, coffee liqueur, simple syrup, coffee beans garnish."
+            },
+            {
+              "name": "Lover & Friends",
+              "price": 15.99,
+              "description": "Gin, lavender syrup, lemon, triple sec, served over a flower ice sphere."
+            },
+            {
+              "name": "Malibu Bay Breeze",
+              "price": 15.99,
+              "description": "Malibu coconut rum with pineapple juice and cranberry juice."
+            },
+            {
+              "name": "Pornstar Martini",
+              "price": 15.99,
+              "description": "Vanilla vodka, passionfruit purée, hint of lime, served with a shot of prosecco."
+            },
+            {
+              "name": "Situationship",
+              "price": 15.99,
+              "description": "Hennessy, Cointreau, lime juice, strawberry purée, served neat."
+            },
+            {
+              "name": "Left on Read",
+              "price": 15.99,
+              "description": "Tequila or vodka, white peach purée, ginger-honey syrup, lime juice."
+            },
+            {
+              "name": "No Strings",
+              "price": 15.99,
+              "description": "Bourbon, lemon juice, simple syrup, blackberry purée, topped with club soda."
+            },
+            {
+              "name": "Just A Friend",
+              "price": 15.99,
+              "description": "Mezcal or tequila, guava purée, lime juice, triple sec, sugar and Tajín rim."
+            },
+            {
+              "name": "U UP?",
+              "price": 15.99,
+              "description": "Vanilla vodka, Kahlúa, crème de cacao, fresh espresso, simple syrup, chocolate bitters."
+            },
+            {
+              "name": "Swipe Right",
+              "price": 15.99,
+              "description": "Vodka, passionfruit purée, lychee syrup, lime juice."
+            },
+            {
+              "name": "Summer Fling",
+              "price": 15.99,
+              "description": "Vodka, coconut cream, lemon juice, piña mix, pineapple juice, simple syrup."
+            },
+            {
+              "name": "Wild Thoughts",
+              "price": 15.99,
+              "description": "Vodka or tequila, wildberry purée, rose syrup, lime juice, simple syrup."
+            },
+            {
+              "name": "Negroni",
+              "price": 15.99,
+              "description": "Gin, Campari, sweet vermouth, orange peel garnish."
+            },
+            {
+              "name": "Amaretto Sour",
+              "price": 15.99,
+              "description": "Disaronno, sour mix, Fee Foam, cherry and orange wheel garnish."
+            },
+            {
+              "name": "Mule",
+              "price": 15.99,
+              "description": "Classic mule with flavor options: strawberry, mango, peach, blackberry, guava, passionfruit, lavender, wild berry, rose, and more."
+            },
+            {
+              "name": "Piña-Colada",
+              "price": 15.99,
+              "description": "Rum, piña mix, pineapple juice, pineapple and cherry garnish."
+            },
+            {
+              "name": "Cosmopolitan",
+              "price": 15.99,
+              "description": "Vodka, triple sec, cranberry juice, lime."
+            }
+          ]
+        },
+        {
+          "id": "specialty-cocktails",
+          "title": "Speciality Cocktails",
+          "image": "/images/menu/happy_hour_drinks.png",
+          "imagePosition": "right",
+          "items": [
+            {
+              "name": "Smoked Old Fashioned – Signature Presentation",
+              "price": 18.99,
+              "description": "Elevated Old Fashioned with house bourbon or rye whiskey, simple syrup, Angostura bitters, large ice cube, orange peel garnish."
+            },
+            {
+              "name": "Sneaky Link",
+              "price": 18.99,
+              "description": "Friends version of a rum punch with blends of rum, amaretto, strawberry, pineapple, orange and grenadine."
+            },
+            {
+              "name": "Side Piece",
+              "price": 18.99,
+              "description": "Friends version of a Hennessy Sidecar with Cointreau and lemon juice."
+            }
+          ]
+        },
+        {
+          "id": "shooters",
+          "title": "Shooters",
+          "image": "/images/menu/happy_hour_drinks.png",
+          "imagePosition": "left",
+          "items": [
+            {
+              "name": "Lemon Drop",
+              "price": 12.99,
+              "description": "Vodka, lemon juice, simple syrup."
+            },
+            {
+              "name": "Green Tea",
+              "price": 12.99,
+              "description": "Whiskey, peach schnapps, sour mix."
+            },
+            {
+              "name": "Mexican Tea",
+              "price": 12.99,
+              "description": "Tequila, peach schnapps, sour mix."
+            },
+            {
+              "name": "White Tea",
+              "price": 12.99,
+              "description": "Vodka, peach schnapps, sour mix."
+            },
+            {
+              "name": "Pink Starburst",
+              "price": 12.99,
+              "description": "Vodka, watermelon pucker, sour mix."
+            },
+            {
+              "name": "Blue Gummy Bear",
+              "price": 12.99,
+              "description": "Vodka, blue curaçao, sour mix, topped with Sprite."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cafe",
+      "name": "Cafe",
+      "sections": [
+        {
+          "id": "beer",
+          "title": "Beer",
+          "image": "/images/menu/happy_hour_bites.png",
+          "imagePosition": "left",
+          "items": [
+            { "name": "Bud Light", "price": 4.99 },
+            { "name": "Corona", "price": 4.99 },
+            { "name": "Heineken", "price": 4.99 },
+            { "name": "Stella Artois", "price": 4.99 },
+            { "name": "Michelob Ultra", "price": 4.99 }
+          ]
+        },
+        {
+          "id": "white-wine",
+          "title": "White Wine",
+          "image": "/images/menu/happy_hour_bites.png",
+          "imagePosition": "right",
+          "items": [
+            {
+              "name": "Aimè Terre di Chieti – Sauvignon Blanc",
+              "price": 11.0,
+              "description": "Dry and fresh with aromatic fruit flavors. $11 glass / $38 bottle."
+            },
+            {
+              "name": "Soave Classico",
+              "price": 11.0,
+              "description": "Light to medium-bodied with crisp acidity and a dry finish. $11 glass / $38 bottle."
+            },
+            {
+              "name": "Verdicchio dei Castelli di Jesi",
+              "price": 11.0,
+              "description": "Dry and refreshing Italian white with a slight nutty or mineral character. $11 glass / $38 bottle."
+            },
+            {
+              "name": "Moscato",
+              "price": 11.0,
+              "description": "Sweet and aromatic white wine with floral notes. $11 glass / $38 bottle."
+            }
+          ]
+        },
+        {
+          "id": "red-wine",
+          "title": "Red Wines",
+          "image": "/images/menu/happy_hour_bites.png",
+          "imagePosition": "left",
+          "items": [
+            {
+              "name": "Sangue di Giuda (“Blood of Judas”)",
+              "price": 11.0,
+              "description": "Sweet, fruity, and smooth. $11 glass / $38 bottle."
+            },
+            {
+              "name": "Mark West – Pinot Noir",
+              "price": 11.0,
+              "description": "Notes of black cherry, raspberry, and sage. $11 glass / $38 bottle."
+            },
+            {
+              "name": "Impero Collection – Premium Red",
+              "price": 11.0,
+              "description": "Full-bodied, dry, and smooth with balanced tannins. $11 glass / $38 bottle."
+            },
+            {
+              "name": "Pinot Noir – Trevenezie",
+              "price": 11.0,
+              "description": "Bright ruby red with floral notes of violet. $11 glass / $38 bottle."
+            }
+          ]
+        },
+        {
+          "id": "rose-wine",
+          "title": "Rosé Wine",
+          "image": "/images/menu/happy_hour_bites.png",
+          "imagePosition": "right",
+          "items": [
+            {
+              "name": "Rosato “Mon Amorè”",
+              "price": 11.0,
+              "description": "Bright and fresh with vibrant fruit and crisp acidity. $11 glass / $38 bottle."
+            }
+          ]
+        },
+        {
+          "id": "champagne",
+          "title": "Champagne",
+          "image": "/images/menu/happy_hour_bites.png",
+          "imagePosition": "left",
+          "items": [
+            { "name": "Glass of Champagne", "price": 10.99 },
+            { "name": "Glass of Prosecco", "price": 12.99 }
+          ]
+        },
+        {
+          "id": "mocktails",
+          "title": "Mocktails",
+          "image": "/images/menu/happy_hour_bites.png",
+          "imagePosition": "right",
+          "items": [
+            {
+              "name": "Virgin Mojito",
+              "price": 12.99,
+              "description": "Fresh mint, lime juice, sugar, club soda, and ice."
+            },
+            {
+              "name": "Strawberry Lemonade Spritzer",
+              "price": 12.99,
+              "description": "Muddled strawberries, lemon juice, simple syrup, club soda."
+            },
+            {
+              "name": "Pineapple Ginger Punch",
+              "price": 12.99,
+              "description": "Pineapple juice, lime juice, ginger syrup, club soda."
+            },
+            {
+              "name": "Cranberry Rosemary Refresher",
+              "price": 12.99,
+              "description": "Cranberry juice, rosemary syrup, lime, orange bitters, topped with club soda."
+            },
+            {
+              "name": "Guava Berry Breeze",
+              "price": 12.99,
+              "description": "Guava and wildberry purées, lime, mint, topped with club soda and ginger beer."
+            },
+            {
+              "name": "Lavender Fizz",
+              "price": 12.99,
+              "description": "Lavender purée, lemon juice, topped with club soda."
+            }
+          ]
+        },
+        {
+          "id": "breakfast",
+          "title": "Breakfast 10:00am–2pm",
+          "image": "/images/menu/appetizers.png",
+          "imagePosition": "left",
+          "items": [
+            {
+              "name": "Build Your Omelette",
+              "price": 14.99,
+              "description": "Start with (3) eggs and choose (3) of the following items: cheddar cheese, mixed bell peppers, onion, or diced tomatoes. Served with homemade potato wedges."
+            },
+            {
+              "name": "Chicken and Egg Sandwich",
+              "price": 14.99,
+              "description": "Chicken, scrambled egg, cheese, lettuce and tomato on ciabatta, with homemade potato wedges."
+            },
+            {
+              "name": "Breakfast Burrito",
+              "price": 11.99,
+              "description": "Scrambled eggs, cheddar cheese, lettuce wrapped in a warm tortilla. Served with homemade potato wedges."
+            }
+          ]
+        },
+        {
+          "id": "hot-drinks",
+          "title": "Hot Drinks",
+          "image": "/images/menu/appetizers.png",
+          "imagePosition": "right",
+          "items": [
+            {
+              "name": "Black Coffee",
+              "price": 3.99,
+              "description": "Medium – $4.99."
+            },
+            {
+              "name": "Café Latte",
+              "price": 5.99,
+              "description": "Espresso with steamed milk and a light layer of foam. Choice of milk: Whole, Almond, Oat."
+            },
+            {
+              "name": "Chai Tea Latte",
+              "price": 4.99,
+              "description": "Aromatic spices with your choice of Whole, Almond, or Oat milk."
+            },
+            { "name": "Espresso (2 shots)", "price": 3.99 },
+            { "name": "Americano", "price": 4.99 },
+            {
+              "name": "Black Tea",
+              "price": 4.99,
+              "description": "Cup $4.99 / Pot $12.99."
+            },
+            {
+              "name": "Mint Tea",
+              "price": 4.99,
+              "description": "Cup $4.99 / Pot $14.99."
+            },
+            { "name": "Macchiato", "price": 5.99 },
+            {
+              "name": "Extras",
+              "price": 0.0,
+              "description": "Add an extra shot of espresso $1.99. Add caramel drizzle $0.99. Choice of milk: Whole, Almond, Oat."
+            }
+          ]
+        },
+        {
+          "id": "cold-drinks",
+          "title": "Cold Drinks",
+          "image": "/images/menu/appetizers.png",
+          "imagePosition": "left",
+          "items": [
+            { "name": "Cranberry Juice", "price": 4.99 },
+            { "name": "Pineapple Juice", "price": 4.99 },
+            { "name": "Lemonade", "price": 4.99 },
+            {
+              "name": "Soda",
+              "price": 4.99,
+              "description": "Coke, Diet Coke, Fanta, Ginger Ale, Root Beer, Sprite."
+            },
+            { "name": "Fiji Water", "price": 4.99 },
+            { "name": "Sparkling Water", "price": 4.99 },
+            { "name": "Club Soda", "price": 4.99 },
+            { "name": "Red Bull", "price": 5.99 }
+          ]
+        },
+        {
+          "id": "hookah",
+          "title": "Hookah",
+          "image": "/images/menu/appetizers.png",
+          "imagePosition": "right",
+          "items": [
+            {
+              "name": "Hookah",
+              "price": 26.99,
+              "description": "Happy Hour Hookah – $14.99. Minimum choice 2 flavors. Add a 3rd flavor for $2.99."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
