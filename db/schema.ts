@@ -8,6 +8,30 @@ import {
 	numeric,
 } from "drizzle-orm/pg-core";
 
+// ======
+// Auth / Admin Users
+// ======
+//
+// Used by NextAuth in `app/api/auth/[...nextauth]/route.ts`:
+//   import { users } from "@/db/schema"
+//
+// Admins are represented by users with role = "ADMIN". You can add more roles
+// later if needed (e.g. "STAFF", "MANAGER").
+
+export const users = pgTable("users", {
+	id: serial("id").primaryKey(),
+	name: text("name"),
+	email: text("email").notNull().unique(),
+	emailVerified: timestamp("email_verified", { withTimezone: true }),
+	// Optional for OAuth-only accounts; required for credentials logins
+	passwordHash: text("password_hash"),
+	role: text("role").notNull().default("USER"), // USER | ADMIN
+	isActive: boolean("is_active").notNull().default(true),
+	lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
+	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
 // =====================
 // Events & Reservations
 // =====================

@@ -132,14 +132,14 @@ export default function AdminLayout({
 				<div className="flex">
 					{/* Desktop Sidebar */}
 					<aside className="hidden w-64 lg:block">
-						<nav className="sticky top-16 flex flex-col gap-1 p-6">
+						<nav className="sticky top-16 flex flex-col gap-1 p-6 md:mt-10">
 							<NavLinks />
 						</nav>
 					</aside>
 
 					{/* Main Content */}
 					<main className="flex-1 p-4 lg:p-8 max-w-[1400px]">
-						<div className="mx-auto max-w-6xl max-h-[calc(100vh-150px)] overflow-scroll no-scrollbar rounded-xl bg-white/60 p-6 shadow-lg backdrop-blur-sm lg:p-8">
+						<div className="mx-auto max-w-6xl h-[calc(100vh-150px)] overflow-scroll no-scrollbar rounded-xl bg-white/60 p-6 shadow-lg backdrop-blur-sm lg:p-8">
 							{children}
 						</div>
 					</main>
