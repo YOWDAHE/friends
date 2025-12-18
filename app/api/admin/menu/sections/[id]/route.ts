@@ -1,16 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { db } from "@/db";
 import { menuSections } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAdminUser } from "@/lib/admin-auth";
 import { updateSectionSchema } from "@/lib/validation/menuValidation";
 
-type Params = { params: { id: string } };
+type RouteContext = { params: Promise<{ id: string }> };
 
-export async function PATCH(req: Request, { params }: Params) {
+export async function PATCH(req: NextRequest, { params }: RouteContext) {
     try {
         await requireAdminUser();
-        const id = Number(params.id);
+        const { id: idParam } = await params;
+        const id = Number(idParam);
 
         const json = await req.json();
         const parsed = updateSectionSchema.safeParse({ ...json, id });
@@ -54,10 +55,11 @@ export async function PATCH(req: Request, { params }: Params) {
     }
 }
 
-export async function DELETE(_req: Request, { params }: Params) {
+export async function DELETE(_req: NextRequest, { params }: RouteContext) {
     try {
         await requireAdminUser();
-        const id = Number(params.id);
+        const { id: idParam } = await params;
+        const id = Number(idParam);
 
         await db.delete(menuSections).where(eq(menuSections.id, id));
 

@@ -1,16 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { db } from "@/db";
 import { payments, reservations } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { requireAdminUser } from "@/lib/admin-auth";
 import { createPaymentSchema } from "@/lib/validation/paymentValidation";
 
-type Params = { params: { id: string } };
+type RouteContext = { params: Promise<{ id: string }> };
 
-export async function GET(_req: Request, { params }: Params) {
+export async function GET(_req: NextRequest, { params }: RouteContext) {
     try {
         await requireAdminUser();
-        const reservationId = Number(params.id);
+        const { id } = await params;
+        const reservationId = Number(id);
 
         const rows = await db
             .select()
@@ -27,10 +28,11 @@ export async function GET(_req: Request, { params }: Params) {
     }
 }
 
-export async function POST(req: Request, { params }: Params) {
+export async function POST(req: NextRequest, { params }: RouteContext) {
     try {
         await requireAdminUser();
-        const reservationId = Number(params.id);
+        const { id } = await params;
+        const reservationId = Number(id);
 
         const json = await req.json();
         const parsed = createPaymentSchema.safeParse({
