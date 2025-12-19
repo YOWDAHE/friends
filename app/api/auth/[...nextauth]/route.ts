@@ -7,6 +7,7 @@ import { users } from "@/db/schema"; // adjust to your User table
 import { eq } from "drizzle-orm";
 
 export const authOptions: NextAuthOptions = {
+    secret: process.env.NEXTAUTH_SECRET,
     session: {
         strategy: "jwt",
     },
@@ -62,7 +63,7 @@ export const authOptions: NextAuthOptions = {
         },
     },
     pages: {
-        signIn: "/login",
+        signIn: "/admin/login",
     },
 };
 

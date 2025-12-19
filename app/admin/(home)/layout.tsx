@@ -19,6 +19,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { signOut } from "next-auth/react";
 
 const navItems = [
 	{ href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -121,7 +122,17 @@ export default function AdminLayout({
 							<div className="hidden md:block">
 								<p className="text-sm font-semibold">Admin</p>
 							</div>
-							<Button variant="ghost" size="sm" className="hidden gap-2 md:flex">
+							<Button
+								variant="ghost"
+								size="sm"
+								className="hidden gap-2 md:flex"
+								onClick={() =>
+									signOut({
+										redirect: true,
+										callbackUrl: "/admin/login"
+									})
+								}
+							>
 								<LogOut className="h-4 w-4" />
 								Sign out
 							</Button>
