@@ -12,6 +12,7 @@ export const createEventSchema = z.object({
     dateTime: isoDateString,
     location: z.string().min(1, "Location is required"),
     imageUrl: z.string().url("Invalid URL").optional().nullable(),
+    imagePublicId: z.string().trim().optional().nullable(),
     isPaidEvent: z.boolean().optional().default(false),
     isPublished: z.boolean().optional().default(false),
 });

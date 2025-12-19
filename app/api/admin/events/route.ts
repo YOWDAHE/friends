@@ -45,6 +45,7 @@ export async function POST(req: Request) {
                 dateTime: new Date(data.dateTime),
                 location: data.location,
                 imageUrl: data.imageUrl ?? null,
+                imagePublicId: (data as any).imagePublicId ?? null,
                 isPaidEvent: data.isPaidEvent ?? false,
                 isPublished: data.isPublished ?? false,
             })

@@ -44,6 +44,7 @@ export const events = pgTable("events", {
 	dateTime: timestamp("date_time", { withTimezone: true }).notNull(),
 	location: text("location").notNull(),
 	imageUrl: text("image_url"),
+	imagePublicId: text("image_public_id"),
 	isPaidEvent: boolean("is_paid_event").notNull().default(false),
 	isPublished: boolean("is_published").notNull().default(false),
 	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),

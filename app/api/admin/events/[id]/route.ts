@@ -4,28 +4,9 @@ import { events } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAdminUser } from "@/lib/admin-auth";
 import { updateEventSchema } from "@/lib/validation/eventValidation";
+import { deleteCloudinaryImage } from "@/lib/cloudinary";
 
 type RouteContext = { params: Promise<{ id: string }> };
-
-export async function GET(_req: NextRequest, { params }: RouteContext) {
-    try {
-        await requireAdminUser();
-        const { id: idParam } = await params;
-        const id = Number(idParam);
-        const [event] = await db.select().from(events).where(eq(events.id, id));
-
-        if (!event) {
-            return NextResponse.json({ error: "Not found" }, { status: 404 });
-        }
-
-        return NextResponse.json({ event });
-    } catch (e) {
-        if ((e as Error).message === "UNAUTHORIZED") {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-        return NextResponse.json({ error: "Server error" }, { status: 500 });
-    }
-}
 
 export async function PATCH(req: NextRequest, { params }: RouteContext) {
     try {
@@ -45,34 +26,41 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
         const data = parsed.data;
         const { id: _, ...rest } = data;
 
-        const [event] = await db
+        const [existing] = await db
+            .select()
+            .from(events)
+            .where(eq(events.id, id));
+
+        const [row] = await db
             .update(events)
             .set({
                 ...(rest.title !== undefined && { title: rest.title }),
                 ...(rest.subtitle !== undefined && { subtitle: rest.subtitle }),
-                ...(rest.description !== undefined && {
-                    description: rest.description,
-                }),
-                ...(rest.dateTime !== undefined && {
-                    dateTime: new Date(rest.dateTime),
-                }),
+                ...(rest.description !== undefined && { description: rest.description }),
+                ...(rest.dateTime !== undefined && { dateTime: new Date(rest.dateTime) }),
                 ...(rest.location !== undefined && { location: rest.location }),
                 ...(rest.imageUrl !== undefined && { imageUrl: rest.imageUrl }),
-                ...(rest.isPaidEvent !== undefined && {
-                    isPaidEvent: rest.isPaidEvent,
-                }),
-                ...(rest.isPublished !== undefined && {
-                    isPublished: rest.isPublished,
-                }),
+                ...(rest.imagePublicId !== undefined && { imagePublicId: rest.imagePublicId }),
+                ...(rest.isPaidEvent !== undefined && { isPaidEvent: rest.isPaidEvent }),
+                ...(rest.isPublished !== undefined && { isPublished: rest.isPublished }),
             })
             .where(eq(events.id, id))
             .returning();
 
-        if (!event) {
+        if (!row) {
             return NextResponse.json({ error: "Not found" }, { status: 404 });
         }
 
-        return NextResponse.json({ event });
+        if (
+            rest.imagePublicId &&
+            existing?.imagePublicId &&
+            existing.imagePublicId !== rest.imagePublicId
+        ) {
+            console.log("deleting image")
+            deleteCloudinaryImage(existing.imagePublicId);
+        }
+
+        return NextResponse.json({ event: row });
     } catch (e) {
         if ((e as Error).message === "UNAUTHORIZED") {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -87,7 +75,16 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
         const { id: idParam } = await params;
         const id = Number(idParam);
 
+        const [existing] = await db
+            .select()
+            .from(events)
+            .where(eq(events.id, id));
+
         await db.delete(events).where(eq(events.id, id));
+
+        if (existing?.imagePublicId) {
+            deleteCloudinaryImage(existing.imagePublicId);
+        }
         return NextResponse.json({ ok: true });
     } catch (e) {
         if ((e as Error).message === "UNAUTHORIZED") {

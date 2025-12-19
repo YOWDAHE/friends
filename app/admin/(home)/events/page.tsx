@@ -1,186 +1,285 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Calendar, Eye, Pencil, Trash2, Plus } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { EventFormDialog } from "@/components/admin/event-form-dialog"
-import { EventDetailSheet } from "@/components/admin/event-detail-sheet"
-
-// Mock data
-const initialEvents = [
-  {
-    id: "1",
-    title: "Wine Tasting Night",
-    subtitle: "Explore wines from around the world",
-    date: "2025-01-24",
-    time: "19:00",
-    location: "Main Dining Room",
-    description: "Join us for an evening of wine tasting featuring selections from top vineyards.",
-    imageUrl: "/wine-tasting.png",
-    published: true,
-    reservationCount: 24,
-  },
-  {
-    id: "2",
-    title: "Live Jazz Brunch",
-    subtitle: "Sunday brunch with live music",
-    date: "2025-02-02",
-    time: "11:00",
-    location: "Outdoor Patio",
-    description: "Enjoy brunch classics while listening to smooth jazz.",
-    imageUrl: "/jazz-brunch.jpg",
-    published: true,
-    reservationCount: 18,
-  },
-  {
-    id: "3",
-    title: "Valentine's Dinner",
-    subtitle: "Special 4-course menu for couples",
-    date: "2025-02-14",
-    time: "18:00",
-    location: "Private Room",
-    description: "A romantic dinner experience with carefully curated dishes.",
-    imageUrl: "/romantic-dinner.png",
-    published: false,
-    reservationCount: 0,
-  },
-]
+import { useEffect, useState, useCallback } from "react";
+import { Calendar, Eye, Pencil, Trash2, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
+import { EventFormDialog } from "@/components/admin/event-form-dialog";
+import { EventDetailSheet } from "@/components/admin/event-detail-sheet";
+import { Spinner } from "@/components/ui/spinner";
+import type { EventRecord } from "@/types/events";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function EventsPage() {
-  const [events, setEvents] = useState(initialEvents)
-  const [selectedEvent, setSelectedEvent] = useState<(typeof initialEvents)[0] | null>(null)
-  const [editingEvent, setEditingEvent] = useState<(typeof initialEvents)[0] | null>(null)
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
-  const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false)
+	const [events, setEvents] = useState<EventRecord[]>([]);
+	const [selectedEvent, setSelectedEvent] = useState<EventRecord | null>(null);
+	const [editingEvent, setEditingEvent] = useState<EventRecord | null>(null);
+	const [detailSheetOpen, setDetailSheetOpen] = useState(false);
+	const [loading, setLoading] = useState(true);
 
-  const handleDeleteEvent = (id: string) => {
-    setEvents(events.filter((e) => e.id !== id))
-  }
+	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+	const [eventToDelete, setEventToDelete] = useState<EventRecord | null>(null);
 
-  const handleSaveEvent = (eventData: any) => {
-    if (editingEvent) {
-      // Update existing event
-      setEvents(events.map((e) => (e.id === editingEvent.id ? { ...eventData, id: e.id } : e)))
-    } else {
-      // Create new event
-      setEvents([...events, { ...eventData, id: Date.now().toString() }])
-    }
-    setEditingEvent(null)
-    setIsCreateDialogOpen(false)
-  }
+	const fetchEvents = useCallback(async () => {
+		try {
+			setLoading(true);
+			const res = await fetch("/api/admin/events");
+			if (!res.ok) throw new Error("Failed to fetch events");
+			const { events } = (await res.json()) as { events: EventRecord[] };
+			setEvents(events);
+		} catch (err) {
+			console.error("Error fetching events:", err);
+		} finally {
+			setLoading(false);
+		}
+	}, []);
 
-  const handleViewEvent = (event: (typeof initialEvents)[0]) => {
-    setSelectedEvent(event)
-    setIsDetailSheetOpen(true)
-  }
+	useEffect(() => {
+		fetchEvents();
+	}, [fetchEvents]);
 
-  const handleEditEvent = (event: (typeof initialEvents)[0]) => {
-    setEditingEvent(event)
-    setIsCreateDialogOpen(true)
-  }
+	const handleSaveEvent = async (data: {
+		title: string;
+		subtitle?: string;
+		description?: string;
+		date: string;
+		time: string;
+		location: string;
+		imageUrl?: string;
+		isPublished?: boolean;
+		isPaidEvent?: boolean;
+		imagePublicId?: string;
+	}) => {
+		const dateTimeIso = new Date(`${data.date}T${data.time}:00`).toISOString();
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="font-rage text-4xl md:text-5xl">Upcoming Events</h1>
-          <p className="mt-2 text-gray-600">Manage upcoming and past events</p>
-        </div>
-        <Button
-          onClick={() => {
-            setEditingEvent(null)
-            setIsCreateDialogOpen(true)
-          }}
-          className="gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Create Event
-        </Button>
-      </div>
+		const payload = {
+			title: data.title,
+			subtitle: data.subtitle ?? null,
+			description: data.description ?? null,
+			dateTime: dateTimeIso,
+			location: data.location,
+			imageUrl: data.imageUrl ?? null,
+			imagePublicId: data.imagePublicId ?? null,
+			isPublished: data.isPublished ?? false,
+			isPaidEvent: data.isPaidEvent ?? false,
+		};
 
-      {/* Events Table */}
-      <div className="rounded-lg border bg-white">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Event</TableHead>
-              <TableHead>Date & Time</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Reservations</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {events.map((event) => (
-              <TableRow key={event.id}>
-                <TableCell>
-                  <div>
-                    <div className="font-semibold">{event.title}</div>
-                    <div className="text-sm text-gray-500">{event.subtitle}</div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-gray-400" />
-                    <div>
-                      <div className="text-sm">
-                        {new Date(event.date).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
-                      </div>
-                      <div className="text-xs text-gray-500">{event.time}</div>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={event.published ? "default" : "secondary"}>
-                    {event.published ? "Live" : "Draft"}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <span className="font-medium">{event.reservationCount}</span>
-                </TableCell>
-                <TableCell>
-                  <div className="flex justify-end gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => handleViewEvent(event)}>
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleEditEvent(event)}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteEvent(event.id)}
-                      className="text-red-600 hover:bg-red-50 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+		try {
+			if (editingEvent) {
+				const res = await fetch(`/api/admin/events/${editingEvent.id}`, {
+					method: "PATCH",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(payload),
+				});
+				if (!res.ok) throw new Error("Failed to update event");
+				const { event } = (await res.json()) as { event: EventRecord };
 
-      {/* Event Form Dialog */}
-      <EventFormDialog
-        open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-        event={editingEvent}
-        onSave={handleSaveEvent}
-      />
+				setEvents((prev) => prev.map((e) => (e.id === event.id ? event : e)));
+				setEditingEvent(null);
+			} else {
+				const res = await fetch("/api/admin/events", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(payload),
+				});
+				if (!res.ok) throw new Error("Failed to create event");
+				const { event } = (await res.json()) as { event: EventRecord };
 
-      {/* Event Detail Sheet */}
-      {selectedEvent && (
-        <EventDetailSheet open={isDetailSheetOpen} onOpenChange={setIsDetailSheetOpen} event={selectedEvent} />
-      )}
-    </div>
-  )
+				setEvents((prev) => [event, ...prev]);
+			}
+		} catch (err) {
+			console.error("Error saving event:", err);
+		}
+	};
+  
+
+	const openDeleteDialog = (event: EventRecord) => {
+		setEventToDelete(event);
+		setDeleteDialogOpen(true);
+	};
+
+	const confirmDelete = async () => {
+		if (!eventToDelete) return;
+		try {
+			const res = await fetch(`/api/admin/events/${eventToDelete.id}`, {
+				method: "DELETE",
+			});
+			if (!res.ok) throw new Error("Failed to delete event");
+			setEvents((prev) => prev.filter((e) => e.id !== eventToDelete.id));
+		} catch (err) {
+			console.error("Error deleting event:", err);
+		} finally {
+			setDeleteDialogOpen(false);
+			setEventToDelete(null);
+		}
+	};
+
+	const handleViewEvent = (event: EventRecord) => {
+		setSelectedEvent(event);
+		setDetailSheetOpen(true);
+	};
+
+	if (loading) {
+		return (
+			<div className="p-8 flex items-center justify-center h-full w-full">
+				<Spinner />
+			</div>
+		);
+	}
+
+	return (
+		<div className="space-y-6">
+			{/* Header */}
+			<div className="flex items-end justify-between">
+				<div>
+					<h1 className="font-rage text-4xl md:text-5xl">Upcoming Events</h1>
+					<p className="mt-2 text-gray-600">Manage upcoming and past events</p>
+				</div>
+				<EventFormDialog event={null} onSave={handleSaveEvent}>
+					<Button
+						className="gap-2"
+						type="button"
+						onClick={() => setEditingEvent(null)}
+					>
+						<Plus className="h-4 w-4" />
+						Create Event
+					</Button>
+				</EventFormDialog>
+			</div>
+
+			{/* Events Table */}
+			<div className="rounded-lg border bg-white">
+				<Table>
+					<TableHeader>
+						<TableRow>
+							<TableHead>Event</TableHead>
+							<TableHead>Date & Time</TableHead>
+							<TableHead>Status</TableHead>
+							<TableHead className="text-right">Actions</TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody>
+						{events.map((event) => {
+							const dt = new Date(event.dateTime);
+							return (
+								<TableRow key={event.id}>
+									<TableCell>
+										<div>
+											<div className="font-semibold">{event.title}</div>
+											<div className="text-sm text-gray-500">{event.subtitle}</div>
+										</div>
+									</TableCell>
+									<TableCell>
+										<div className="flex items-center gap-2">
+											<Calendar className="h-4 w-4 text-gray-400" />
+											<div>
+												<div className="text-sm">
+													{dt.toLocaleDateString("en-US", {
+														month: "short",
+														day: "numeric",
+														year: "numeric",
+													})}
+												</div>
+												<div className="text-xs text-gray-500">
+													{dt.toLocaleTimeString("en-US", {
+														hour: "2-digit",
+														minute: "2-digit",
+													})}
+												</div>
+											</div>
+										</div>
+									</TableCell>
+									<TableCell>
+										<Badge variant={event.isPublished ? "default" : "secondary"}>
+											{event.isPublished ? "Live" : "Draft"}
+										</Badge>
+									</TableCell>
+									<TableCell className="text-right">
+										<div className="flex justify-end gap-2">
+											<Button
+												variant="ghost"
+												size="icon"
+												onClick={() => handleViewEvent(event)}
+											>
+												<Eye className="h-4 w-4" />
+											</Button>
+
+											<EventFormDialog event={event} onSave={handleSaveEvent}>
+												<Button
+													variant="ghost"
+													size="icon"
+													type="button"
+													onClick={() => setEditingEvent(event)}
+												>
+													<Pencil className="h-4 w-4" />
+												</Button>
+											</EventFormDialog>
+
+											<Button
+												variant="ghost"
+												size="icon"
+												onClick={() => openDeleteDialog(event)}
+												className="text-red-600 hover:bg-red-50 hover:text-red-700"
+											>
+												<Trash2 className="h-4 w-4" />
+											</Button>
+										</div>
+									</TableCell>
+								</TableRow>
+							);
+						})}
+					</TableBody>
+				</Table>
+			</div>
+
+			{/* Detail Sheet */}
+			{selectedEvent && (
+				<EventDetailSheet
+					open={detailSheetOpen}
+					onOpenChange={setDetailSheetOpen}
+					event={selectedEvent}
+				/>
+			)}
+
+			{/* Delete confirmation */}
+			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Delete event?</AlertDialogTitle>
+						<AlertDialogDescription>
+							This will permanently delete the event
+							{eventToDelete ? ` “${eventToDelete.title}”` : ""}. This action cannot be
+							undone.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction
+							className="bg-destructive text-white hover:bg-destructive/90"
+							onClick={confirmDelete}
+						>
+							Delete
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+		</div>
+	);
 }

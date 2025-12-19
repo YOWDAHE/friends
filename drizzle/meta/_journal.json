@@ -8,6 +8,13 @@
       "when": 1766090704391,
       "tag": "0000_dusty_devos",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1766173932543,
+      "tag": "0001_panoramic_sersi",
+      "breakpoints": true
     }
   ]
 }
