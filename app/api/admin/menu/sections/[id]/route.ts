@@ -4,6 +4,7 @@ import { menuSections } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { requireAdminUser } from "@/lib/admin-auth";
 import { updateSectionSchema } from "@/lib/validation/menuValidation";
+import { deleteCloudinaryImage } from "@/lib/cloudinary";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -26,6 +27,35 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
         const data = parsed.data;
         const { id: _, ...rest } = data;
 
+        // Load existing section to compare image public id
+        const existing = await db.query.menuSections.findFirst({
+            where: eq(menuSections.id, id),
+        });
+
+        console.log("Existing: ", existing)
+        console.log("rest: ", rest)
+
+        if (!existing) {
+            return NextResponse.json({ error: "Not found" }, { status: 404 });
+        }
+
+        const imagePublicIdChanged =
+            rest.imagePublicId &&
+            existing.imagePublicId &&
+            rest.imagePublicId !== existing.imagePublicId;
+
+        if (imagePublicIdChanged) {
+            try {
+                await deleteCloudinaryImage(existing.imagePublicId!);
+            } catch (e) {
+                console.error(
+                    "Failed to delete old Cloudinary image for section",
+                    id,
+                    e,
+                );
+            }
+        }
+
         const [row] = await db
             .update(menuSections)
             .set({
@@ -33,6 +63,9 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
                 ...(rest.slug !== undefined && { slug: rest.slug }),
                 ...(rest.name !== undefined && { name: rest.name }),
                 ...(rest.imageUrl !== undefined && { imageUrl: rest.imageUrl }),
+                ...(rest.imagePublicId !== undefined && {
+                    imagePublicId: rest.imagePublicId,
+                }),
                 ...(rest.imagePosition !== undefined && {
                     imagePosition: rest.imagePosition,
                 }),
@@ -60,6 +93,26 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
         await requireAdminUser();
         const { id: idParam } = await params;
         const id = Number(idParam);
+
+        const existing = await db.query.menuSections.findFirst({
+            where: eq(menuSections.id, id),
+        });
+
+        if (!existing) {
+            return NextResponse.json({ error: "Not found" }, { status: 404 });
+        }
+
+        if (existing.imagePublicId) {
+            try {
+                await deleteCloudinaryImage(existing.imagePublicId);
+            } catch (e) {
+                console.error(
+                    "Failed to delete Cloudinary image for section",
+                    id,
+                    e,
+                );
+            }
+        }
 
         await db.delete(menuSections).where(eq(menuSections.id, id));
 

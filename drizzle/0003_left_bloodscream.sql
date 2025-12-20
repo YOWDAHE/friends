@@ -1,0 +1,1 @@
+ALTER TABLE "menu_sections" ADD COLUMN "image_public_id" text;

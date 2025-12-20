@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Upload } from "lucide-react";
 import type { MenuSection } from "@/types/menu";
+import { Spinner } from "@/components/ui/spinner";
 
 interface SectionDialogProps {
 	children: React.ReactNode;
@@ -30,6 +31,7 @@ export function SectionDialog({
 	const [open, setOpen] = useState(false);
 	const [formData, setFormData] = useState({ name: "", imageUrl: "" });
 	const [selectedFileName, setSelectedFileName] = useState("");
+	const [uploading, setUploading] = useState(false);
 
 	useEffect(() => {
 		if (section) {
@@ -38,7 +40,7 @@ export function SectionDialog({
 			setFormData({ name: "", imageUrl: "" });
 		}
 		setSelectedFileName("");
-	}, [section]);
+	}, [section, open]);
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
@@ -46,11 +48,34 @@ export function SectionDialog({
 		setOpen(false);
 	};
 
-	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
-		if (file) {
-			setSelectedFileName(file.name);
-			console.log("[Section] Selected file:", file.name);
+		if (!file) return;
+
+		setSelectedFileName(file.name);
+		setUploading(true);
+
+		try {
+			const fd = new FormData();
+			fd.append("file", file);
+
+			const res = await fetch("/api/admin/upload/menu-section-image", {
+				method: "POST",
+				body: fd,
+			});
+
+			if (!res.ok) throw new Error("Upload failed");
+
+			const { url, publicId } = (await res.json()) as {
+				url: string;
+				publicId: string;
+			};
+
+			setFormData((prev) => ({ ...prev, imageUrl: url, imagePublicId: publicId }));
+		} catch (err) {
+			console.error("Error uploading section image:", err);
+		} finally {
+			setUploading(false);
 		}
 	};
 
@@ -66,6 +91,13 @@ export function SectionDialog({
 							: "Create a new section within this category."}
 					</DialogDescription>
 				</DialogHeader>
+
+				{uploading && (
+					<div className="absolute inset-0 z-10 flex items-center justify-center gap-4 bg-white/80">
+						<Spinner />
+						<p>Uploading Image...</p>
+					</div>
+				)}
 
 				<form onSubmit={handleSubmit} className="space-y-4">
 					<div className="space-y-2">
@@ -94,6 +126,7 @@ export function SectionDialog({
 								variant="outline"
 								onClick={() => document.getElementById("image")?.click()}
 								className="gap-2"
+								disabled={uploading}
 							>
 								<Upload className="h-4 w-4" />
 								Choose File
@@ -102,13 +135,27 @@ export function SectionDialog({
 								<span className="text-sm text-gray-600">{selectedFileName}</span>
 							)}
 						</div>
+						{formData.imageUrl && (
+							<img
+								src={formData.imageUrl}
+								alt="Section preview"
+								className="mt-2 h-16 w-16 rounded object-cover"
+							/>
+						)}
 					</div>
 
 					<DialogFooter>
-						<Button type="button" variant="outline" onClick={() => setOpen(false)}>
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() => setOpen(false)}
+							disabled={uploading}
+						>
 							Cancel
 						</Button>
-						<Button type="submit">{section ? "Save Changes" : "Add Section"}</Button>
+						<Button type="submit" disabled={uploading}>
+							{section ? "Save Changes" : "Add Section"}
+						</Button>
 					</DialogFooter>
 				</form>
 			</DialogContent>

@@ -194,6 +194,7 @@ export const menuSections = pgTable("menu_sections", {
 	slug: text("slug").notNull(),
 	name: text("name").notNull(),
 	imageUrl: text("image_url"),
+	imagePublicId: text("image_public_id"),
 	// "left" | "right" – matches the public menu layout imagePosition
 	imagePosition: text("image_position").default("left"),
 	sortOrder: integer("sort_order").notNull().default(0),

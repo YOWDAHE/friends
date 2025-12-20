@@ -16,6 +16,7 @@ export interface MenuSection {
     slug: string;
     name: string;
     imageUrl: string | null;
+    imagePublicId?: string | null;
     imagePosition: 'left' | 'right';
     sortOrder: number;
     isActive: boolean;

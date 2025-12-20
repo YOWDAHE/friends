@@ -26,6 +26,7 @@ export const createSectionSchema = z.object({
         .regex(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers, and dashes"),
     name: z.string().min(1, "Name is required"),
     imageUrl: z.string().url("Invalid URL").optional().nullable(),
+    imagePublicId: z.string().trim().optional().nullable(),
     imagePosition: z.enum(["left", "right"]).optional().default("left"),
     sortOrder: z.number().int().optional(),
     isActive: z.boolean().optional(),

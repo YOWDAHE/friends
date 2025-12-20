@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, PencilIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -20,6 +20,7 @@ import { SectionDialog } from "@/components/admin/section-dialog";
 import type { MenuCategory, MenuSection, MenuItem } from "@/types/menu";
 import { Spinner } from "@/components/ui/spinner";
 import { useConfirm } from "@/app/components/UseConfirm";
+import { EditCategoryDialog } from "@/components/admin/EditCategoryDialog";
 
 export default function MenuPage() {
 	const { confirm, ConfirmDialog } = useConfirm();
@@ -111,6 +112,40 @@ export default function MenuPage() {
 		setIsCategoryDialogOpen(false);
 	};
 
+	const handleUpdateCategory = async (
+		id: number,
+		categoryData: { name: string; tagline?: string }
+	) => {
+		try {
+			const slug = categoryData.name
+				.toLowerCase()
+				.replace(/\s+/g, "-")
+				.replace(/[^a-z0-9-]/g, "");
+
+			const res = await fetch(`/api/admin/menu/categories/${id}`, {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					slug,
+					name: categoryData.name,
+					tagline: categoryData.tagline || null,
+				}),
+			});
+
+			if (!res.ok) throw new Error("Failed to update category");
+			const { category } = (await res.json()) as { category: MenuCategory };
+
+			setMenuData((prev) =>
+				prev.map((c) => (c.id === category.id ? category : c))
+			);
+			if (selectedCategory?.id === category.id) {
+				setSelectedCategory(category);
+			}
+		} catch (error) {
+			console.error("Error updating category:", error);
+		}
+	};
+
 	const handleDeleteCategory = async (categoryId: number) => {
 		const ok = await confirm({
 			title: "Delete category?",
@@ -140,7 +175,10 @@ export default function MenuPage() {
 		name: string;
 		slug?: string;
 		imageUrl?: string;
+		imagePublicId?: string;
 	}) => {
+		if (!selectedCategory) return;
+
 		try {
 			const slug =
 				sectionData.slug ||
@@ -148,37 +186,51 @@ export default function MenuPage() {
 					.toLowerCase()
 					.replace(/\s+/g, "-")
 					.replace(/[^a-z0-9-]/g, "");
-			const res = await fetch("/api/admin/menu/sections", {
-				method: editingSection ? "PATCH" : "POST",
+
+			const isEdit = !!editingSection;
+
+			const url = isEdit
+				? `/api/admin/menu/sections/${editingSection!.id}`
+				: "/api/admin/menu/sections";
+
+			const method = isEdit ? "PATCH" : "POST";
+
+			const body = isEdit
+				? {
+						slug,
+						name: sectionData.name,
+						imageUrl: sectionData.imageUrl ?? editingSection!.imageUrl ?? null,
+						imagePublicId:
+							sectionData.imagePublicId ??
+							(editingSection as any).imagePublicId ??
+							null,
+				  }
+				: {
+						categoryId: selectedCategory.id,
+						slug,
+						name: sectionData.name,
+						imageUrl: sectionData.imageUrl || null,
+						imagePublicId: sectionData.imagePublicId || null,
+						sortOrder: sections.length,
+				  };
+
+			const res = await fetch(url, {
+				method,
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(
-					editingSection
-						? {
-								id: editingSection.id,
-								...sectionData,
-								slug,
-						  }
-						: {
-								categoryId: selectedCategory!.id,
-								slug,
-								name: sectionData.name,
-								imageUrl: sectionData.imageUrl || null,
-								sortOrder: sections.length,
-						  }
-				),
+				body: JSON.stringify(body),
 			});
 
 			if (!res.ok) throw new Error("Failed to save section");
-			const result = await res.json();
 
-			if (editingSection) {
-				setSections(
-					sections.map((s) =>
-						s.id === editingSection.id ? result.section || result : s
-					)
+			const result = await res.json();
+			const savedSection: MenuSection = (result.section ?? result) as MenuSection;
+
+			if (isEdit) {
+				setSections((prev) =>
+					prev.map((s) => (s.id === savedSection.id ? savedSection : s))
 				);
 			} else {
-				setSections([...sections, result.section]);
+				setSections((prev) => [...prev, savedSection]);
 			}
 
 			setEditingSection(null);
@@ -408,7 +460,7 @@ export default function MenuPage() {
 
 	if (loading) {
 		return (
-			<div className="p-8 text-center">
+			<div className="p-8 text-center absolute inset-0 flex items-center justify-center">
 				{" "}
 				<Spinner />
 			</div>
@@ -486,18 +538,29 @@ export default function MenuPage() {
 						<>
 							<div className="flex items-center justify-between">
 								<h3 className="text-xl font-bold">{selectedCategory.name}</h3>
-								<SectionDialog section={editingSection} onSave={handleSaveSection}>
-									<Button
-										onClick={() => {
-											setEditingSection(null);
-											setIsSectionDialogOpen(true);
-										}}
-										className="gap-2"
+								<div className="flex items-center justify-center gap-4">
+									<EditCategoryDialog
+										category={selectedCategory}
+										onSave={handleUpdateCategory}
 									>
-										<Plus className="h-4 w-4" />
-										Add Section
-									</Button>
-								</SectionDialog>
+										<Button variant="outline" type="button" className="gap-1">
+											<PencilIcon className="h-3 w-3" />
+											Edit Category
+										</Button>
+									</EditCategoryDialog>
+									<SectionDialog section={null} onSave={handleSaveSection}>
+										<Button
+											className="gap-2"
+											type="button"
+											onClick={() => {
+												setEditingSection(null);
+											}}
+										>
+											<Plus className="h-4 w-4" />
+											Add Section
+										</Button>
+									</SectionDialog>
+								</div>
 							</div>
 
 							{loadingSections ? (
@@ -520,16 +583,18 @@ export default function MenuPage() {
 														<CardTitle>{section.name}</CardTitle>
 													</div>
 													<div className="flex gap-2">
-														<Button
-															size="sm"
-															variant="outline"
-															onClick={() => {
-																setEditingSection(section);
-																setIsSectionDialogOpen(true);
-															}}
-														>
-															<Pencil className="h-4 w-4" />
-														</Button>
+														<SectionDialog section={section} onSave={handleSaveSection}>
+															<Button
+																size="sm"
+																variant="outline"
+																type="button"
+																onClick={() => {
+																	setEditingSection(section);
+																}}
+															>
+																<Pencil className="h-4 w-4" />
+															</Button>
+														</SectionDialog>
 														<Button
 															size="sm"
 															variant="outline"
