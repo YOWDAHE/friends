@@ -15,6 +15,13 @@
       "when": 1766173932543,
       "tag": "0001_panoramic_sersi",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1766220180246,
+      "tag": "0002_nappy_shape",
+      "breakpoints": true
     }
   ]
 }

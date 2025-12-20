@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { db } from "@/db";
 import { reservationTickets, tickets } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { requireAdminUser } from "@/lib/admin-auth";
 import { addReservationTicketSchema } from "@/lib/validation/reservationsValidation";
 
@@ -65,6 +65,11 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
                 totalPrice: total,
             })
             .returning();
+
+        await db
+            .update(tickets)
+            .set({ sold: sql`${tickets.sold} + ${data.quantity}` })
+            .where(eq(tickets.id, data.ticketId));
 
         return NextResponse.json({ ticketLine: row }, { status: 201 });
     } catch (e) {

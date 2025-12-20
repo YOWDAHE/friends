@@ -20,10 +20,21 @@ import type { EventRecord } from "@/types/events";
 import { useToast } from "@/hooks/use-toast";
 import { Spinner } from "../ui/spinner";
 
+type TicketForm = {
+	id?: number;
+	name: string;
+	price: string;
+	description?: string;
+	capacity?: number;
+	sortOrder?: number;
+	isActive?: boolean;
+};
+
 interface EventFormDialogProps {
 	children: React.ReactNode;
-	event?: EventRecord | null;
+	event?: (EventRecord & { tickets?: TicketForm[] }) | null;
 	onSave: (data: {
+		id?: number;
 		title: string;
 		subtitle?: string;
 		description?: string;
@@ -34,6 +45,7 @@ interface EventFormDialogProps {
 		isPublished?: boolean;
 		isPaidEvent?: boolean;
 		imagePublicId?: string;
+		tickets?: TicketForm[];
 	}) => void;
 }
 
@@ -43,7 +55,18 @@ export function EventFormDialog({
 	onSave,
 }: EventFormDialogProps) {
 	const [open, setOpen] = useState(false);
-	const [formData, setFormData] = useState({
+	const [formData, setFormData] = useState<{
+		title: string;
+		subtitle: string;
+		date: string;
+		time: string;
+		location: string;
+		description: string;
+		imageUrl: string;
+		isPublished: boolean;
+		isPaidEvent: boolean;
+		tickets: TicketForm[];
+	}>({
 		title: "",
 		subtitle: "",
 		date: "",
@@ -53,17 +76,20 @@ export function EventFormDialog({
 		imageUrl: "",
 		isPublished: false,
 		isPaidEvent: false,
+		tickets: [],
 	});
+
 	const [selectedFileName, setSelectedFileName] = useState("");
 	const [newPublicId, setNewPublicId] = useState<string | null>(null);
 	const [uploading, setUploading] = useState(false);
-	const toast = useToast();
+	const { toast } = useToast();
 
 	useEffect(() => {
 		if (event) {
 			const dt = new Date(event.dateTime);
 			const date = dt.toISOString().slice(0, 10);
 			const time = dt.toISOString().slice(11, 16);
+
 			setFormData({
 				title: event.title,
 				subtitle: event.subtitle ?? "",
@@ -74,6 +100,7 @@ export function EventFormDialog({
 				imageUrl: event.imageUrl ?? "",
 				isPublished: event.isPublished,
 				isPaidEvent: event.isPaidEvent,
+				tickets: event.tickets ?? [],
 			});
 			setNewPublicId(null);
 		} else {
@@ -87,6 +114,7 @@ export function EventFormDialog({
 				imageUrl: "",
 				isPublished: false,
 				isPaidEvent: false,
+				tickets: [],
 			});
 			setNewPublicId(null);
 		}
@@ -95,22 +123,23 @@ export function EventFormDialog({
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		const dateTimeIso = new Date(
-			`${formData.date}T${formData.time}:00`
-		).toISOString();
-		console.log("Saved Form Data: ", formData.imageUrl);
+		if (!formData.date || !formData.time) return;
+
 		onSave({
+			id: event?.id,
 			title: formData.title,
 			subtitle: formData.subtitle || undefined,
 			description: formData.description || undefined,
 			date: formData.date,
 			time: formData.time,
 			location: formData.location,
-			imageUrl: formData.imageUrl || undefined,
+			imageUrl: formData.imageUrl || event?.imageUrl || undefined,
 			isPublished: formData.isPublished,
 			isPaidEvent: formData.isPaidEvent,
 			imagePublicId: newPublicId ?? event?.imagePublicId ?? undefined,
+			tickets: formData.isPaidEvent ? formData.tickets : [],
 		});
+
 		setOpen(false);
 	};
 
@@ -122,12 +151,12 @@ export function EventFormDialog({
 		setUploading(true);
 
 		try {
-			const formData = new FormData();
-			formData.append("file", file);
+			const fd = new FormData();
+			fd.append("file", file);
 
 			const res = await fetch("/api/admin/upload/event-image", {
 				method: "POST",
-				body: formData,
+				body: fd,
 			});
 
 			if (!res.ok) throw new Error("Upload failed");
@@ -144,7 +173,11 @@ export function EventFormDialog({
 			setNewPublicId(publicId);
 		} catch (err) {
 			console.error("Error uploading image:", err);
-			// optionally: show toast
+			toast({
+				title: "Image upload failed",
+				description: "Please try again.",
+				variant: "destructive",
+			});
 		} finally {
 			setUploading(false);
 		}
@@ -163,10 +196,13 @@ export function EventFormDialog({
 								: "Fill in the details to create a new event."}
 						</DialogDescription>
 					</DialogHeader>
-          {uploading && <div className="absolute inset-0 bg-white/80 z-10 flex items-center justify-center gap-4">
-            <Spinner />
-            <p>Uploading Image...</p>
-          </div>}
+
+					{uploading && (
+						<div className="absolute inset-0 z-10 flex items-center justify-center gap-4 bg-white/80">
+							<Spinner />
+							<p>Uploading Image...</p>
+						</div>
+					)}
 
 					<form onSubmit={handleSubmit} className="space-y-4">
 						<div className="space-y-2">
@@ -250,6 +286,7 @@ export function EventFormDialog({
 									variant="outline"
 									onClick={() => document.getElementById("image")?.click()}
 									className="gap-2"
+									disabled={uploading}
 								>
 									<Upload className="h-4 w-4" />
 									Choose File
@@ -276,11 +313,165 @@ export function EventFormDialog({
 							/>
 						</div>
 
+						<div className="flex items-center justify-between rounded-lg border p-4">
+							<div className="space-y-0.5">
+								<Label htmlFor="paid">Paid Event</Label>
+								<p className="text-sm text-gray-500">Require tickets for this event</p>
+							</div>
+							<Switch
+								id="paid"
+								checked={formData.isPaidEvent}
+								onCheckedChange={(checked) =>
+									setFormData({ ...formData, isPaidEvent: checked })
+								}
+							/>
+						</div>
+
+						{formData.isPaidEvent && (
+							<div className="space-y-3 rounded-lg border p-4">
+								<div className="flex items-center justify-between">
+									<Label>Ticket Types</Label>
+									<Button
+										type="button"
+										size="sm"
+										onClick={() =>
+											setFormData((prev) => ({
+												...prev,
+												tickets: [
+													...prev.tickets,
+													{
+														name: "",
+														price: "",
+														description: "",
+														capacity: undefined,
+														sortOrder: prev.tickets.length,
+														isActive: true,
+													},
+												],
+											}))
+										}
+									>
+										Add Ticket
+									</Button>
+								</div>
+
+								{formData.tickets.map((ticket, index) => (
+									<div
+										key={ticket.id ?? index}
+										className="grid items-start gap-3 sm:grid-cols-[1.3fr_0.8fr_0.8fr_auto]"
+									>
+										<div className="space-y-1">
+											<Label>Name</Label>
+											<Input
+												value={ticket.name}
+												onChange={(e) => {
+													const name = e.target.value;
+													setFormData((prev) => {
+														const tickets = [...prev.tickets];
+														tickets[index] = { ...tickets[index], name };
+														return { ...prev, tickets };
+													});
+												}}
+												placeholder="General Admission"
+												required
+											/>
+										</div>
+
+										<div className="space-y-1">
+											<Label>Price</Label>
+											<Input
+												value={ticket.price}
+												onChange={(e) => {
+													const price = e.target.value;
+													setFormData((prev) => {
+														const tickets = [...prev.tickets];
+														tickets[index] = { ...tickets[index], price };
+														return { ...prev, tickets };
+													});
+												}}
+												placeholder="19.99"
+												required
+											/>
+										</div>
+
+										<div className="space-y-1">
+											<Label>Capacity</Label>
+											<Input
+												type="number"
+												min={1}
+												value={ticket.capacity ?? ""}
+												onChange={(e) => {
+													const raw = e.target.value;
+													const capacity = raw === "" ? undefined : Number(raw) || undefined;
+													setFormData((prev) => {
+														const tickets = [...prev.tickets];
+														tickets[index] = { ...tickets[index], capacity };
+														return { ...prev, tickets };
+													});
+												}}
+												placeholder="Optional"
+											/>
+										</div>
+
+										<div className="space-y-1 sm:col-span-4">
+											<Label>Description</Label>
+											<Textarea
+												value={ticket.description ?? ""}
+												onChange={(e) => {
+													const description = e.target.value;
+													setFormData((prev) => {
+														const tickets = [...prev.tickets];
+														tickets[index] = { ...tickets[index], description };
+														return { ...prev, tickets };
+													});
+												}}
+												rows={2}
+												placeholder="Short description (optional)"
+											/>
+										</div>
+
+										<div className="flex items-center justify-between sm:col-span-4">
+											<div className="flex items-center gap-2">
+												<Switch
+													checked={ticket.isActive ?? true}
+													onCheckedChange={(checked) =>
+														setFormData((prev) => {
+															const tickets = [...prev.tickets];
+															tickets[index] = {
+																...tickets[index],
+																isActive: checked,
+															};
+															return { ...prev, tickets };
+														})
+													}
+												/>
+												<span className="text-sm text-gray-600">Active ticket</span>
+											</div>
+											<Button
+												type="button"
+												variant="outline"
+												onClick={() =>
+													setFormData((prev) => ({
+														...prev,
+														tickets: prev.tickets.filter((_, i) => i !== index),
+													}))
+												}
+											>
+												Remove
+											</Button>
+										</div>
+									</div>
+								))}
+							</div>
+						)}
+
 						<DialogFooter>
 							<Button type="button" variant="outline" onClick={() => setOpen(false)}>
 								Cancel
 							</Button>
-							<Button type="submit">Save Event</Button>
+							<Button type="submit" disabled={uploading}>
+								Save Event
+							</Button>
 						</DialogFooter>
 					</form>
 				</DialogContent>

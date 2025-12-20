@@ -28,13 +28,20 @@ export type UpdateEventInput = z.infer<typeof updateEventSchema>;
 export const createTicketSchema = z.object({
     eventId: z.number().int().positive(),
     name: z.string().min(1, "Name is required"),
-    description: z.string().trim().optional().nullable(),
+    description: z.string().trim().optional().nullable(),         // already compatible
     price: z
         .string()
         .regex(/^\d+(\.\d{1,2})?$/, "Price must be a number with up to 2 decimals"),
     capacity: z.number().int().min(1).optional().nullable(),
     sortOrder: z.number().int().optional(),
     isActive: z.boolean().optional(),
+    // optional extras you may want:
+    category: z.string().trim().optional().nullable(),
+    salesStart: z.string().datetime().optional().nullable(),
+    salesEnd: z.string().datetime().optional().nullable(),
+    minPerOrder: z.number().int().min(1).optional().nullable(),
+    maxPerOrder: z.number().int().min(1).optional().nullable(),
+    internalNotes: z.string().trim().optional().nullable(),
 });
 
 export const updateTicketSchema = createTicketSchema.partial().extend({

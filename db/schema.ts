@@ -75,16 +75,23 @@ export const tickets = pgTable("tickets", {
 	eventId: integer("event_id")
 		.notNull()
 		.references(() => events.id, { onDelete: "cascade" }),
-	name: text("name").notNull(), // e.g. "General Admission"
-	description: text("description"),
+	name: text("name").notNull(),             // e.g. "General Admission"
+	description: text("description"),         // public description (already present)
 	price: numeric("price", { precision: 10, scale: 2 }).notNull(),
-	capacity: integer("capacity"), // optional max quantity available
+	capacity: integer("capacity"),            // optional max quantity available
 	sold: integer("sold").notNull().default(0),
 	isActive: boolean("is_active").notNull().default(true),
 	sortOrder: integer("sort_order").notNull().default(0),
+	category: text("category"),               // e.g. "Early Bird", "VIP"
+	salesStart: timestamp("sales_start", { withTimezone: true }),
+	salesEnd: timestamp("sales_end", { withTimezone: true }),
+	minPerOrder: integer("min_per_order"),    // per-reservation constraints
+	maxPerOrder: integer("max_per_order"),
+	internalNotes: text("internal_notes"),    // admin-only
 	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
+
 
 // A reservation can optionally lock in a specific ticket type and quantity.
 // This keeps the reservation entity simple while enabling per-ticket reporting.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef, useTransition } from "react";
 import { Calendar, Eye, Pencil, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,15 +27,39 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+type TicketForm = {
+	id?: number;
+	name: string;
+	price: string;
+	description?: string;
+	capacity?: number;
+	sortOrder?: number;
+	isActive?: boolean;
+};
+
+type EventWithTickets = EventRecord & { tickets?: TicketForm[] };
+
 export default function EventsPage() {
 	const [events, setEvents] = useState<EventRecord[]>([]);
-	const [selectedEvent, setSelectedEvent] = useState<EventRecord | null>(null);
-	const [editingEvent, setEditingEvent] = useState<EventRecord | null>(null);
+	const [selectedEvent, setSelectedEvent] = useState<EventWithTickets | null>(
+		null
+	);
 	const [detailSheetOpen, setDetailSheetOpen] = useState(false);
 	const [loading, setLoading] = useState(true);
 
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [eventToDelete, setEventToDelete] = useState<EventRecord | null>(null);
+
+	// use EventWithTickets here so tickets are allowed
+	const [editingEvent, setEditingEvent] = useState<EventWithTickets | null>(
+		null
+	);
+	const [eventTickets, setEventTickets] = useState<Record<number, TicketForm[]>>(
+		{}
+	);
+	const buttonRef = useRef<HTMLButtonElement | null>(null);
+	const [editButtonLoading, startEditButton] = useTransition();
+	const [detailButtonLoading, loadDetailPage] = useTransition();
 
 	const fetchEvents = useCallback(async () => {
 		try {
@@ -55,7 +79,33 @@ export default function EventsPage() {
 		fetchEvents();
 	}, [fetchEvents]);
 
+	const loadTicketsForEvent = async (eventId: number): Promise<TicketForm[]> => {
+		try {
+			const res = await fetch(`/api/admin/events/${eventId}/tickets`);
+			if (!res.ok) return [];
+			const data = await res.json();
+			const tickets = (data.tickets ?? []) as any[];
+
+			const normalized = tickets.map((t, index) => ({
+				id: t.id,
+				name: t.name,
+				price: t.price,
+				description: t.description ?? "",
+				capacity: t.capacity ?? undefined,
+				sortOrder: t.sortOrder ?? index,
+				isActive: t.isActive ?? true,
+			}));
+
+			setEventTickets((prev) => ({ ...prev, [eventId]: normalized }));
+			return normalized;
+		} catch (e) {
+			console.error("Error loading tickets:", e);
+			return [];
+		}
+	};
+
 	const handleSaveEvent = async (data: {
+		id?: number;
 		title: string;
 		subtitle?: string;
 		description?: string;
@@ -66,6 +116,7 @@ export default function EventsPage() {
 		isPublished?: boolean;
 		isPaidEvent?: boolean;
 		imagePublicId?: string;
+		tickets?: TicketForm[];
 	}) => {
 		const dateTimeIso = new Date(`${data.date}T${data.time}:00`).toISOString();
 
@@ -82,18 +133,21 @@ export default function EventsPage() {
 		};
 
 		try {
-			if (editingEvent) {
-				const res = await fetch(`/api/admin/events/${editingEvent.id}`, {
+			let eventId: number;
+
+			if (data.id) {
+				// EDIT
+				const res = await fetch(`/api/admin/events/${data.id}`, {
 					method: "PATCH",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(payload),
 				});
 				if (!res.ok) throw new Error("Failed to update event");
 				const { event } = (await res.json()) as { event: EventRecord };
-
+				eventId = event.id;
 				setEvents((prev) => prev.map((e) => (e.id === event.id ? event : e)));
-				setEditingEvent(null);
 			} else {
+				// CREATE
 				const res = await fetch("/api/admin/events", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
@@ -101,14 +155,31 @@ export default function EventsPage() {
 				});
 				if (!res.ok) throw new Error("Failed to create event");
 				const { event } = (await res.json()) as { event: EventRecord };
-
+				eventId = event.id;
 				setEvents((prev) => [event, ...prev]);
 			}
+
+			const ticketsPayload =
+				data.isPaidEvent && data.tickets && data.tickets.length
+					? data.tickets.map((t, index) => ({
+							name: t.name,
+							price: t.price,
+							description: t.description ?? null,
+							capacity: t.capacity ?? null,
+							sortOrder: t.sortOrder ?? index,
+							isActive: t.isActive ?? true,
+					  }))
+					: [];
+
+			await fetch(`/api/admin/events/${eventId}/tickets`, {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(ticketsPayload),
+			});
 		} catch (err) {
 			console.error("Error saving event:", err);
 		}
 	};
-  
 
 	const openDeleteDialog = (event: EventRecord) => {
 		setEventToDelete(event);
@@ -131,8 +202,14 @@ export default function EventsPage() {
 		}
 	};
 
-	const handleViewEvent = (event: EventRecord) => {
-		setSelectedEvent(event);
+	const handleViewEvent = async (event: EventRecord) => {
+		loadDetailPage(async () => {
+			const tickets = await loadTicketsForEvent(event.id);
+			setSelectedEvent({
+				...event,
+				tickets,
+			});
+		});
 		setDetailSheetOpen(true);
 	};
 
@@ -152,11 +229,15 @@ export default function EventsPage() {
 					<h1 className="font-rage text-4xl md:text-5xl">Upcoming Events</h1>
 					<p className="mt-2 text-gray-600">Manage upcoming and past events</p>
 				</div>
+
+				{/* Create dialog */}
 				<EventFormDialog event={null} onSave={handleSaveEvent}>
 					<Button
 						className="gap-2"
 						type="button"
-						onClick={() => setEditingEvent(null)}
+						onClick={() => {
+							setEditingEvent(null);
+						}}
 					>
 						<Plus className="h-4 w-4" />
 						Create Event
@@ -178,6 +259,10 @@ export default function EventsPage() {
 					<TableBody>
 						{events.map((event) => {
 							const dt = new Date(event.dateTime);
+							const isEditingThis = editingEvent?.id === event.id;
+							const eventForDialog: EventWithTickets =
+								isEditingThis && editingEvent ? editingEvent : { ...event }; // plain event when not editing
+
 							return (
 								<TableRow key={event.id}>
 									<TableCell>
@@ -218,17 +303,33 @@ export default function EventsPage() {
 												size="icon"
 												onClick={() => handleViewEvent(event)}
 											>
-												<Eye className="h-4 w-4" />
+												{detailButtonLoading ? <Spinner /> : <Eye className="h-4 w-4" />}
 											</Button>
 
-											<EventFormDialog event={event} onSave={handleSaveEvent}>
+											<EventFormDialog
+												event={{
+													...event,
+													tickets: eventTickets[event.id] ?? [],
+												}}
+												onSave={handleSaveEvent}
+											>
 												<Button
+													ref={buttonRef}
 													variant="ghost"
 													size="icon"
 													type="button"
-													onClick={() => setEditingEvent(event)}
+													onClick={async (e) => {
+														if (eventTickets[event.id]) return; // tickets already loaded
+
+														e.preventDefault();
+														startEditButton(async () => {
+															await loadTicketsForEvent(event.id);
+															buttonRef.current?.click();
+														});
+														// tickets now in state; trigger the click again to open dialog
+													}}
 												>
-													<Pencil className="h-4 w-4" />
+													{editButtonLoading ? <Spinner /> : <Pencil className="h-4 w-4" />}
 												</Button>
 											</EventFormDialog>
 
