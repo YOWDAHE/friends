@@ -1,12 +1,38 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { db } from "@/db";
-import { events } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { events, tickets } from "@/db/schema";
+import { eq, and } from "drizzle-orm";
 import { requireAdminUser } from "@/lib/admin-auth";
 import { updateEventSchema } from "@/lib/validation/eventValidation";
 import { deleteCloudinaryImage } from "@/lib/cloudinary";
 
 type RouteContext = { params: Promise<{ id: string }> };
+
+export async function GET(_req: NextRequest, { params }: RouteContext) {
+    try {
+        const { id: idParam } = await params;
+        const id = Number(idParam);
+
+        const [event] = await db
+            .select()
+            .from(events)
+            .where(eq(events.id, id));
+
+        if (!event) {
+            return NextResponse.json({ error: "Not found" }, { status: 404 });
+        }
+
+        const eventTickets = await db
+            .select()
+            .from(tickets)
+            .where(and(eq(tickets.eventId, id), eq(tickets.isActive, true)))
+            .orderBy(tickets.sortOrder, tickets.id);
+
+        return NextResponse.json({ event, tickets: eventTickets });
+    } catch (e) {
+        return NextResponse.json({ error: "Server error" }, { status: 500 });
+    }
+}
 
 export async function PATCH(req: NextRequest, { params }: RouteContext) {
     try {

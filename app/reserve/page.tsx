@@ -18,10 +18,12 @@ function page() {
 				<div className="absolute bg-[#B700FF]/70 size-50 rounded-full top-100 right-0"></div>
 			</div>
 			<div className="z-20 relative mt-20 md:mt-60 max-w-[1400px] w-full md:px-8">
-        <h1 className="text-5xl md:text-7xl font-black tracking-tight text-center">Reservations</h1>
-        <Upcoming/>
-      </div>
-      <Footer/>
+				<h1 className="text-5xl md:text-7xl font-black tracking-tight text-center">
+					Reservations
+				</h1>
+				<Upcoming />
+			</div>
+			<Footer />
 		</div>
 	);
 }
