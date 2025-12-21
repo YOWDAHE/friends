@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { redirect, useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Calendar, MapPin } from "lucide-react";
@@ -274,92 +274,22 @@ export default function EventDetailPage() {
 
 												{/* Checkout CTA */}
 												<div className="mt-6 flex flex-col gap-4">
-													{/* Reservation & Cancellation Policy */}
-													<div className="rounded border bg-white p-3 text-xs text-neutral-700 space-y-2">
-														<p className="font-semibold">
-															Reservation & Cancellation Policy – Friends VA
-														</p>
-														<p>
-															At Friends VA, we are committed to providing our guests with
-															exceptional service and a premium dining, daytime, and nightlife
-															experience. In order to prepare for your arrival and ensure a
-															smooth experience for all, we kindly ask that you review and
-															acknowledge our reservation and cancellation policy:
-														</p>
-														<p>
-															There will be a{" "}
-															<span className="font-semibold">$250 cleaning fee</span> for
-															tables/groups requiring excessive cleaning due to inappropriate
-															conduct, such as (but not limited to): vomiting, cake fights,
-															intentional pouring of liquor on tables or the floor. We will do
-															our best to charge the individual responsible. However, if that’s
-															not possible, the entire table will be equally responsible for
-															the total fee.
-														</p>
-														<p className="font-semibold">
-															Pre-Payment &amp; Cancellation Terms
-														</p>
-														<p>
-															All reservations requiring pre-payment are{" "}
-															<span className="font-semibold">
-																non-refundable and non-transferable
-															</span>
-															. This includes, but is not limited to, circumstances involving
-															late arrivals, no-shows, changes in guest count, or cancellations
-															for any reason.
-														</p>
-														<p>
-															If you have any questions regarding your reservation, please
-															contact us: &nbsp;📞 202.403.7994 &nbsp; 📧 info@FriendsVA.com
-														</p>
-														<p>All guests must be 21+ years of age.</p>
-														<p>
-															There are{" "}
-															<span className="font-semibold">no refunds or credits</span> for
-															prepayments under any circumstances, including no-shows or late
-															arrivals.
-														</p>
-
-														{/* Checkbox */}
-														<label className="mt-2 flex items-start gap-2">
-															<input
-																type="checkbox"
-																className="mt-0.5"
-																checked={agreed}
-																onChange={(e) => setAgreed(e.target.checked)}
-															/>
-															<span>
-																I have read and agree to the Reservation &amp; Cancellation
-																Policy.
-															</span>
-														</label>
-													</div>
 
 													<Button
 														className="w-full md:w-auto"
-														disabled={!agreed}
 														onClick={() => {
-															if (!agreed) return;
-															// 1) create reservation + ticket line
-															// 2) redirect to payment
+															// if (!agreed) return;
+															const params = new URLSearchParams({
+																eventId: String(event.id),
+																ticketId: String(selectedTicket.id),
+																qty: String(quantity),
+															});
+
+															router.push(`/checkout?${params.toString()}`);
 														}}
 													>
-														Proceed to payment
+														But Ticket
 													</Button>
-
-													{!agreed && (
-														<p className="text-xs text-red-600">
-															You must agree to the Reservation &amp; Cancellation Policy
-															before checking out.
-														</p>
-													)}
-
-													<p className="text-xs text-neutral-600">
-														Looking for more?{" "}
-														<Link href="/reserve" className="font-medium text-orange-500 underline">
-															Continue shopping
-														</Link>
-													</p>
 												</div>
 											</div>
 										)}
