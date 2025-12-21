@@ -5,6 +5,8 @@ import { db } from "@/db";
 import { events, tickets } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
+const TAX_RATE = 0.05;
+
 export async function POST(req: NextRequest) {
     try {
         const { eventId, ticketId, qty, name, email, phone, notes } =
@@ -17,7 +19,6 @@ export async function POST(req: NextRequest) {
                 phone?: string;
                 notes?: string;
             };
-
 
         if (!eventId || !ticketId || !qty || qty <= 0) {
             return NextResponse.json(
@@ -63,7 +64,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // compute totals
+        // compute totals WITH tax included
         const priceNumber = Number(ticket.price);
         if (Number.isNaN(priceNumber) || priceNumber <= 0) {
             return NextResponse.json(
@@ -72,14 +73,18 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const subtotal = priceNumber * qty;
-        const tax = subtotal * 0.05;
-        const total = subtotal + tax;
+        const subtotal = priceNumber * qty;              // e.g. 20 * 2 = 40
+        const tax = subtotal * TAX_RATE;                 // 2
+        const total = subtotal + tax;                    // 42
 
-        // Stripe expects amount in cents
-        const amountInCents = Math.round(total * 100);
+        // per-ticket total incl. tax
+        const perTicketTotal = total / qty;              // 21
 
-        const origin = (await headers()).get("origin") ?? process.env.NEXT_PUBLIC_BASE_URL ?? "";
+        const unitAmountInCents = Math.round(perTicketTotal * 100); // 2100
+        const origin =
+            (await headers()).get("origin") ??
+            process.env.NEXT_PUBLIC_BASE_URL ??
+            "";
 
         const session = await stripe.checkout.sessions.create({
             mode: "payment",
@@ -90,10 +95,12 @@ export async function POST(req: NextRequest) {
                     quantity: qty,
                     price_data: {
                         currency: "usd",
-                        unit_amount: amountInCents / qty, // per ticket incl. tax
+                        unit_amount: unitAmountInCents, // cents per ticket incl. tax
                         product_data: {
                             name: `${event.title} – ${ticket.name}`,
-                            description: event.subtitle ?? undefined,
+                            description: event.subtitle
+                                ? `${event.subtitle} (incl. 5% Food & Beverage Tax)`
+                                : `Includes 5% Food & Beverage Tax ($${tax.toFixed(2)} total)`,
                         },
                     },
                 },
@@ -104,6 +111,9 @@ export async function POST(req: NextRequest) {
                 eventId: String(event.id),
                 ticketId: String(ticket.id),
                 qty: String(qty),
+                subtotal: subtotal.toFixed(2),
+                tax: tax.toFixed(2),
+                total: total.toFixed(2),
                 name: name ?? "",
                 email: email ?? "",
                 phone: phone ?? "",

@@ -6,6 +6,7 @@ import {
 	boolean,
 	integer,
 	numeric,
+	uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 // ======
@@ -142,7 +143,12 @@ export const payments = pgTable("payments", {
 	description: text("description"),
 	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-});
+}, (table) => ({
+	// 🔐 unique constraint for idempotency
+	providerPaymentIdUnique: uniqueIndex("payments_providerPaymentId_unique").on(
+		table.providerPaymentId,
+	),
+}),);
 
 // Optional table for storing individual charge / refund events, webhook logs,
 // or provider responses for debugging and audits.

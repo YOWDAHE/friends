@@ -41,25 +41,36 @@ export async function POST(req: NextRequest) {
             const ticketId = Number(metadata.ticketId);
             const qty = Number(metadata.qty);
 
-            const metaName = metadata.name && metadata.name.trim().length
-                ? metadata.name
-                : undefined;
-            const metaEmail = metadata.email && metadata.email.trim().length
-                ? metadata.email
-                : undefined;
-            const metaPhone = metadata.phone && metadata.phone.trim().length
-                ? metadata.phone
-                : undefined;
-            const metaNotes = metadata.notes && metadata.notes.trim().length
-                ? metadata.notes
-                : undefined;
-
             if (!eventId || !ticketId || !qty || qty <= 0) {
-                console.error("Missing metadata in checkout.session.completed");
+                console.error("Missing metadata in checkout.session.completed", {
+                    eventId,
+                    ticketId,
+                    qty,
+                });
                 return NextResponse.json({ received: true });
             }
 
-            // Load ticket to get price, capacity, etc.
+            const paymentIntentId = session.payment_intent?.toString() ?? null;
+            if (!paymentIntentId) {
+                console.error("Missing payment_intent on session", session.id);
+                return NextResponse.json({ received: true });
+            }
+
+            // ✅ IDEMPOTENCY: skip if this payment already processed
+            const existingPayments = await db
+                .select()
+                .from(payments)
+                .where(eq(payments.providerPaymentId, paymentIntentId));
+
+            if (existingPayments.length > 0) {
+                console.log(
+                    "Payment already processed, skipping duplicate webhook",
+                    paymentIntentId,
+                );
+                return NextResponse.json({ received: true });
+            }
+
+            // Load ticket to get name, capacity, etc.
             const [ticketRow] = await db
                 .select()
                 .from(tickets)
@@ -77,14 +88,38 @@ export async function POST(req: NextRequest) {
                     : null;
 
             if (remaining !== null && qty > remaining) {
-                console.error("Over-capacity in webhook, qty:", qty, "remaining:", remaining);
+                console.error(
+                    "Over-capacity in webhook, qty:",
+                    qty,
+                    "remaining:",
+                    remaining,
+                );
                 return NextResponse.json({ received: true });
             }
 
-            const unitPrice = ticketRow.price;
-            const totalPrice = (Number(unitPrice) * qty).toFixed(2);
+            // Stripe actual charged amount (incl. tax)
+            if (!session.amount_total) {
+                console.error("Missing amount_total on session", session.id);
+                return NextResponse.json({ received: true });
+            }
 
-            // Basic customer info from Stripe
+            const actualAmountCharged = session.amount_total / 100; // e.g. 42.00
+            const subtotalFromMeta = metadata.subtotal
+                ? Number(metadata.subtotal)
+                : Number(ticketRow.price) * qty;
+            const unitPrice = (subtotalFromMeta / qty).toFixed(2); // 20.00
+            const totalPrice = actualAmountCharged.toFixed(2); // 42.00
+
+            console.log("Webhook amounts:", {
+                metadataSubtotal: metadata.subtotal,
+                metadataTax: metadata.tax,
+                metadataTotal: metadata.total,
+                stripeCharged: actualAmountCharged,
+                unitPrice,
+                totalPrice,
+            });
+
+            // Basic customer info from Stripe (backup)
             const customerEmail =
                 typeof session.customer_details?.email === "string"
                     ? session.customer_details?.email
@@ -94,27 +129,44 @@ export async function POST(req: NextRequest) {
                     ? session.customer_details?.name
                     : null;
 
-            // 1) Create reservation (CONFIRMED)
+            const metaName =
+                metadata.name && metadata.name.trim().length
+                    ? metadata.name
+                    : undefined;
+            const metaEmail =
+                metadata.email && metadata.email.trim().length
+                    ? metadata.email
+                    : undefined;
+            const metaPhone =
+                metadata.phone && metadata.phone.trim().length
+                    ? metadata.phone
+                    : undefined;
+            const metaNotes =
+                metadata.notes && metadata.notes.trim().length
+                    ? metadata.notes
+                    : undefined;
+
+            // 1) Create ONE reservation with partySize = qty
             const [reservationRow] = await db
                 .insert(reservations)
                 .values({
                     eventId,
                     name: metaName ?? customerName ?? "Unknown user",
-                    email: customerEmail ?? "unknown@example.com",
-                    phone: metaPhone ?? "", 
+                    email: metaEmail ?? customerEmail ?? "unknown@example.com",
+                    phone: metaPhone ?? "",
                     partySize: qty,
                     notes: metaNotes ?? "Created via online payment",
                     status: "CONFIRMED",
                 })
                 .returning();
 
-            // 2) Create reservation ticket line
+            // 2) ONE ticket line with quantity = qty
             await db.insert(reservationTickets).values({
                 reservationId: reservationRow.id,
                 ticketId,
                 quantity: qty,
-                unitPrice,
-                totalPrice,
+                unitPrice, // "20.00" pre-tax per ticket for reference
+                totalPrice, // "42.00" actual charged incl. tax
             });
 
             // 3) Increment ticket sold count
@@ -123,19 +175,15 @@ export async function POST(req: NextRequest) {
                 .set({ sold: sql`${tickets.sold} + ${qty}` })
                 .where(eq(tickets.id, ticketId));
 
-            // 4) Record payment row
-            const amount = Number(totalPrice);
-            const currency = session.currency?.toUpperCase() ?? "USD";
-            const amountStr = amount.toFixed(2); // string for DB
-
+            // 4) Record payment with actual Stripe amount
             await db.insert(payments).values({
                 reservationId: reservationRow.id,
                 eventId,
-                amount: amountStr,
-                currency,
+                amount: totalPrice, // "42.00"
+                currency: session.currency?.toUpperCase() ?? "USD",
                 status: "SUCCEEDED",
                 provider: "stripe",
-                providerPaymentId: session.payment_intent?.toString() ?? null,
+                providerPaymentId: paymentIntentId,
                 providerClientSecret: null,
                 source: "online",
                 description: `Stripe Checkout – ${ticketRow.name}`,
