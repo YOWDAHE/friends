@@ -28,6 +28,7 @@ const navItems = [
 	{ href: "/admin/menu", label: "Menu", icon: UtensilsCrossed },
 	{ href: "/admin/reservations", label: "Reservations", icon: ClipboardList },
 	{ href: "/admin/contact-messages", label: "Contact", icon: MessageSquare },
+	{ href: "/admin/calendar", label: "Calendar", icon: Calendar },
 	{ href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

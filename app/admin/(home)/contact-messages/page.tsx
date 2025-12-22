@@ -148,7 +148,13 @@ export default function ContactMessagesPage() {
 											onClick={() => handleArchive(msg.id)}
 											disabled={archivingId === msg.id}
 										>
-											{archivingId === msg.id ? "Archiving..." : "Resolved"}
+											{archivingId === msg.id ? (
+												<>
+													<Spinner /> "Archiving..."{" "}
+												</>
+											) : (
+												"Resolved"
+											)}
 										</Button>
 									)}
 								</div>

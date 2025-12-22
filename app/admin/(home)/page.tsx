@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Calendar, Users, UtensilsCrossed, Plus } from "lucide-react";
+import { Calendar, Users, UtensilsCrossed, Plus, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
@@ -22,6 +22,9 @@ type DashboardStats = {
 	menu: {
 		itemsCount: number;
 		categoriesCount: number;
+	};
+	contacts: {
+		newMessagesCount: number;
 	};
 };
 
@@ -60,6 +63,8 @@ export default function AdminDashboard() {
 	const menuItems = stats?.menu.itemsCount ?? 0;
 	const menuCategories = stats?.menu.categoriesCount ?? 0;
 
+	const newContactMessages = stats?.contacts.newMessagesCount ?? 0;
+
 	return (
 		<div className="space-y-8">
 			{/* Header */}
@@ -71,7 +76,7 @@ export default function AdminDashboard() {
 			</div>
 
 			{/* Summary Cards */}
-			<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+			<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 				{/* Next Event Card */}
 				<Card>
 					<CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -172,6 +177,32 @@ export default function AdminDashboard() {
 									className="mt-3 inline-flex text-xs text-orange-500 hover:underline"
 								>
 									Edit menu
+								</Link>
+							</>
+						)}
+					</CardContent>
+        </Card>
+        
+				{/* Contact Messages Card */}
+				<Card>
+					<CardHeader className="flex flex-row items-center justify-between pb-2">
+						<CardTitle className="text-sm font-medium text-gray-600">
+							New Contact Messages
+						</CardTitle>
+						<Mail className="h-5 w-5 text-gray-400" />
+					</CardHeader>
+					<CardContent>
+						{loading ? (
+							<div className="text-sm text-gray-400">Loading…</div>
+						) : (
+							<>
+								<div className="text-2xl font-bold">{newContactMessages}</div>
+								<p className="mt-1 text-sm text-gray-500">awaiting your response</p>
+								<Link
+									href="/admin/contact-messages"
+									className="mt-3 inline-flex text-xs text-orange-500 hover:underline"
+								>
+									View messages
 								</Link>
 							</>
 						)}
