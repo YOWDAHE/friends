@@ -11,6 +11,7 @@ import {
 	Calendar,
 	UtensilsCrossed,
 	ClipboardList,
+	MessageSquare,
 	Settings,
 	LogOut,
 } from "lucide-react";
@@ -26,6 +27,7 @@ const navItems = [
 	{ href: "/admin/events", label: "Events", icon: Calendar },
 	{ href: "/admin/menu", label: "Menu", icon: UtensilsCrossed },
 	{ href: "/admin/reservations", label: "Reservations", icon: ClipboardList },
+	{ href: "/admin/contact-messages", label: "Contact", icon: MessageSquare },
 	{ href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

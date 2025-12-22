@@ -259,7 +259,8 @@ export const contactMessages = pgTable("contact_messages", {
 	phone: text("phone"),
 	subject: text("subject"),
 	message: text("message").notNull(),
-	// simple status for admin
 	isRead: boolean("is_read").notNull().default(false),
+	isArchived: boolean("is_archived").notNull().default(false),
+	archivedAt: timestamp("archived_at", { withTimezone: true }), 
 	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });

@@ -19,6 +19,7 @@ const navItems = [
 	{ href: "/about", label: "About" },
 	{ href: "/menu", label: "Menu" },
 	{ href: "/gallery", label: "Gallery" },
+	{ href: "/contact", label: "Contact Us" },
 ];
 
 export function Header() {
@@ -95,7 +96,7 @@ export function Header() {
 						})}
 						<div className="hidden md:block">
 							<Link href="/reserve" className="rounded-xs bg-black px-6 py-2 font-medium text-white hover:bg-black/80">
-								Reserve
+								Events
 							</Link>
 						</div>
 					</nav>
