@@ -42,10 +42,14 @@ export const events = pgTable("events", {
 	title: text("title").notNull(),
 	subtitle: text("subtitle"),
 	description: text("description"),
-	dateTime: timestamp("date_time", { withTimezone: true }).notNull(),
+	startDate: timestamp("start_date", { withTimezone: true }).notNull(),
+	endDate: timestamp("end_date", { withTimezone: true }).notNull(),
+	startTime: timestamp("start_time", { withTimezone: true }).notNull(),
+	endTime: timestamp("end_time", { withTimezone: true }).notNull(),
 	location: text("location").notNull(),
 	imageUrl: text("image_url"),
 	imagePublicId: text("image_public_id"),
+	isArchived: boolean("is_archived").notNull().default(false),
 	isPaidEvent: boolean("is_paid_event").notNull().default(false),
 	isPublished: boolean("is_published").notNull().default(false),
 	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
@@ -53,7 +57,7 @@ export const events = pgTable("events", {
 
 export const reservations = pgTable("reservations", {
 	id: serial("id").primaryKey(),
-	eventId: integer("event_id").references(() => events.id),
+	eventId: integer("event_id").references(() => events.id, {onDelete: "cascade"}),
 	name: text("name").notNull(),
 	email: text("email").notNull(),
 	phone: text("phone").notNull(),
@@ -103,7 +107,7 @@ export const reservationTickets = pgTable("reservation_tickets", {
 		.references(() => reservations.id, { onDelete: "cascade" }),
 	ticketId: integer("ticket_id")
 		.notNull()
-		.references(() => tickets.id, { onDelete: "restrict" }),
+		.references(() => tickets.id, { onDelete: "cascade" }),
 	quantity: integer("quantity").notNull().default(1),
 	unitPrice: numeric("unit_price", { precision: 10, scale: 2 }).notNull(),
 	totalPrice: numeric("total_price", { precision: 10, scale: 2 }).notNull(),
@@ -126,7 +130,7 @@ export const payments = pgTable("payments", {
 		onDelete: "set null",
 	}),
 	eventId: integer("event_id").references(() => events.id, {
-		onDelete: "set null",
+		onDelete: "cascade",
 	}),
 	// Monetary details
 	amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
@@ -224,4 +228,38 @@ export const menuItems = pgTable("menu_items", {
 	isFeatured: boolean("is_featured").notNull().default(false),
 	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
+export const eventAnalytics = pgTable("event_analytics", {
+	id: serial("id").primaryKey(),
+	eventId: integer("event_id").notNull(), // no FK on purpose, event may be deleted
+	title: text("title").notNull(),
+	startDate: timestamp("start_date", { withTimezone: true }).notNull(),
+	endDate: timestamp("end_date", { withTimezone: true }).notNull(),
+	totalGuests: integer("total_guests").notNull(),
+	totalReservations: integer("total_reservations").notNull(),
+	totalRevenue: numeric("total_revenue", { precision: 10, scale: 2 }).notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
+
+export const revenueByMonth = pgTable("revenue_by_month", {
+	id: serial("id").primaryKey(),
+	year: integer("year").notNull(),
+	month: integer("month").notNull(), // 1-12
+	totalRevenue: numeric("total_revenue", { precision: 10, scale: 2 }).notNull(),
+	totalReservations: integer("total_reservations").notNull(),
+	totalGuests: integer("total_guests").notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
+
+export const contactMessages = pgTable("contact_messages", {
+	id: serial("id").primaryKey(),
+	name: text("name").notNull(),
+	email: text("email").notNull(),
+	phone: text("phone"),
+	subject: text("subject"),
+	message: text("message").notNull(),
+	// simple status for admin
+	isRead: boolean("is_read").notNull().default(false),
+	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });

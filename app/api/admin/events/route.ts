@@ -36,16 +36,23 @@ export async function POST(req: Request) {
         }
 
         const data = parsed.data;
+
+        const startDateTime = new Date(`${data.startDate}T${data.startTime}:00`);
+        const endDateTime = new Date(`${data.endDate}T${data.endTime}:00`);
+
         const [row] = await db
             .insert(events)
             .values({
                 title: data.title,
                 subtitle: data.subtitle ?? null,
                 description: data.description ?? null,
-                dateTime: new Date(data.dateTime),
+                startDate: startDateTime,
+                endDate: endDateTime,
+                startTime: startDateTime,
+                endTime: endDateTime,
                 location: data.location,
                 imageUrl: data.imageUrl ?? null,
-                imagePublicId: (data as any).imagePublicId ?? null,
+                imagePublicId: data.imagePublicId ?? null,
                 isPaidEvent: data.isPaidEvent ?? false,
                 isPublished: data.isPublished ?? false,
             })
@@ -59,3 +66,4 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Server error" }, { status: 500 });
     }
 }
+

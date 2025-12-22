@@ -109,8 +109,10 @@ export default function EventsPage() {
 		title: string;
 		subtitle?: string;
 		description?: string;
-		date: string;
-		time: string;
+		startDate: string;
+		endDate: string;
+		startTime: string;
+		endTime: string;
 		location: string;
 		imageUrl?: string;
 		isPublished?: boolean;
@@ -118,13 +120,22 @@ export default function EventsPage() {
 		imagePublicId?: string;
 		tickets?: TicketForm[];
 	}) => {
-		const dateTimeIso = new Date(`${data.date}T${data.time}:00`).toISOString();
+		const { startDate, endDate, startTime, endTime } = data;
+
+		// build ISO datetimes if your API still wants full datetimes
+		const startDateTimeIso = new Date(
+			`${startDate}T${startTime}:00`
+		).toISOString();
+		const endDateTimeIso = new Date(`${endDate}T${endTime}:00`).toISOString();
 
 		const payload = {
 			title: data.title,
 			subtitle: data.subtitle ?? null,
 			description: data.description ?? null,
-			dateTime: dateTimeIso,
+			startDate: startDate, // or startDateTimeIso if your POST expects datetimes
+			endDate: endDate,
+			startTime: startTime,
+			endTime: endTime,
 			location: data.location,
 			imageUrl: data.imageUrl ?? null,
 			imagePublicId: data.imagePublicId ?? null,
@@ -136,7 +147,6 @@ export default function EventsPage() {
 			let eventId: number;
 
 			if (data.id) {
-				// EDIT
 				const res = await fetch(`/api/admin/events/${data.id}`, {
 					method: "PATCH",
 					headers: { "Content-Type": "application/json" },
@@ -147,7 +157,6 @@ export default function EventsPage() {
 				eventId = event.id;
 				setEvents((prev) => prev.map((e) => (e.id === event.id ? event : e)));
 			} else {
-				// CREATE
 				const res = await fetch("/api/admin/events", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
@@ -258,7 +267,13 @@ export default function EventsPage() {
 					</TableHeader>
 					<TableBody>
 						{events.map((event) => {
-							const dt = new Date(event.dateTime);
+							const start = new Date(event.startDate);
+							const end = new Date(event.endDate);
+							const startTime = new Date(event.startTime);
+							const endTime = new Date(event.endTime);
+
+							const sameDay = event.startDate === event.endDate;
+							const sameTime = event.startTime === event.endTime;
 							const isEditingThis = editingEvent?.id === event.id;
 							const eventForDialog: EventWithTickets =
 								isEditingThis && editingEvent ? editingEvent : { ...event }; // plain event when not editing
@@ -276,21 +291,38 @@ export default function EventsPage() {
 											<Calendar className="h-4 w-4 text-gray-400" />
 											<div>
 												<div className="text-sm">
-													{dt.toLocaleDateString("en-US", {
-														month: "short",
-														day: "numeric",
-														year: "numeric",
-													})}
+													{sameDay
+														? start.toLocaleDateString("en-US", {
+																month: "short",
+																day: "numeric",
+																year: "numeric",
+														  })
+														: `${start.toLocaleDateString("en-US", {
+																month: "short",
+																day: "numeric",
+														  })} – ${end.toLocaleDateString("en-US", {
+																month: "short",
+																day: "numeric",
+														  })}`}
 												</div>
 												<div className="text-xs text-gray-500">
-													{dt.toLocaleTimeString("en-US", {
-														hour: "2-digit",
-														minute: "2-digit",
-													})}
+													{sameTime
+														? startTime.toLocaleTimeString("en-US", {
+																hour: "2-digit",
+																minute: "2-digit",
+														  })
+														: `${startTime.toLocaleTimeString("en-US", {
+																hour: "2-digit",
+																minute: "2-digit",
+														  })} – ${endTime.toLocaleTimeString("en-US", {
+																hour: "2-digit",
+																minute: "2-digit",
+														  })}`}
 												</div>
 											</div>
 										</div>
 									</TableCell>
+
 									<TableCell>
 										<Badge variant={event.isPublished ? "default" : "secondary"}>
 											{event.isPublished ? "Live" : "Draft"}

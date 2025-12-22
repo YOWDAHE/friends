@@ -40,7 +40,10 @@ export function EventDetailSheet({
 	onOpenChange,
 	event,
 }: EventDetailSheetProps) {
-	const dt = new Date(event.dateTime);
+	const sd = new Date(event.startDate);
+	const ed = new Date(event.endDate);
+	const st = new Date(event.startTime);
+	const et = new Date(event.endTime);
 
 	const activeTickets = (event.tickets ?? []).filter((t) => t.isActive ?? true);
 
@@ -78,15 +81,25 @@ export function EventDetailSheet({
 							<Calendar className="h-5 w-5 text-gray-400" />
 							<div>
 								<div className="font-medium">
-									{dt.toLocaleDateString("en-US", {
-										weekday: "long",
-										month: "long",
+									{sd.toLocaleDateString("en-US", {
+										weekday: "short",
+										month: "short",
+										day: "numeric",
+										// year: "numeric",
+									})} -
+									{ed.toLocaleDateString("en-US", {
+										weekday: "short",
+										month: "short",
 										day: "numeric",
 										year: "numeric",
 									})}
 								</div>
 								<div className="text-sm text-gray-600">
-									{dt.toLocaleTimeString("en-US", {
+									{st.toLocaleTimeString("en-US", {
+										hour: "2-digit",
+										minute: "2-digit",
+									})} -
+									{et.toLocaleTimeString("en-US", {
 										hour: "2-digit",
 										minute: "2-digit",
 									})}

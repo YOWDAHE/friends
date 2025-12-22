@@ -5,17 +5,36 @@ const isoDateString = z
     .string()
     .refine((val) => !Number.isNaN(Date.parse(val)), { message: "Invalid date" });
 
-export const createEventSchema = z.object({
-    title: z.string().min(1, "Title is required"),
-    subtitle: z.string().trim().optional().nullable(),
-    description: z.string().trim().optional().nullable(),
-    dateTime: isoDateString,
-    location: z.string().min(1, "Location is required"),
-    imageUrl: z.string().url("Invalid URL").optional().nullable(),
-    imagePublicId: z.string().trim().optional().nullable(),
-    isPaidEvent: z.boolean().optional().default(false),
-    isPublished: z.boolean().optional().default(false),
-});
+const isoDateOnly = z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date (YYYY-MM-DD)");
+
+const isoTimeOnly = z
+    .string()
+    .regex(/^\d{2}:\d{2}$/, "Invalid time (HH:MM)");
+
+export const createEventSchema = z
+    .object({
+        title: z.string().min(1, "Title is required"),
+        subtitle: z.string().trim().optional().nullable(),
+        description: z.string().trim().optional().nullable(),
+
+        startDate: isoDateOnly,
+        endDate: isoDateOnly,
+        startTime: isoTimeOnly,
+        endTime: isoTimeOnly,
+
+        location: z.string().min(1, "Location is required"),
+        imageUrl: z.string().url("Invalid URL").optional().nullable(),
+        imagePublicId: z.string().trim().optional().nullable(),
+        isPaidEvent: z.boolean().optional().default(false),
+        isPublished: z.boolean().optional().default(false),
+    })
+    .refine(
+        (val) => new Date(val.startDate) <= new Date(val.endDate),
+        { path: ["endDate"], message: "End date must be after or equal to start date" },
+    );
+
 
 export const updateEventSchema = createEventSchema.partial().extend({
     id: z.number().int().positive(),

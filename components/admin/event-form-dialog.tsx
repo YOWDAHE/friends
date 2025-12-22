@@ -38,8 +38,10 @@ interface EventFormDialogProps {
 		title: string;
 		subtitle?: string;
 		description?: string;
-		date: string;
-		time: string;
+		startDate: string; // "YYYY-MM-DD"
+		endDate: string; // "YYYY-MM-DD"
+		startTime: string; // "HH:MM"
+		endTime: string; // "HH:MM"
 		location: string;
 		imageUrl?: string;
 		isPublished?: boolean;
@@ -58,8 +60,10 @@ export function EventFormDialog({
 	const [formData, setFormData] = useState<{
 		title: string;
 		subtitle: string;
-		date: string;
-		time: string;
+		startDate: string;
+		endDate: string;
+		startTime: string;
+		endTime: string;
 		location: string;
 		description: string;
 		imageUrl: string;
@@ -69,14 +73,16 @@ export function EventFormDialog({
 	}>({
 		title: "",
 		subtitle: "",
-		date: "",
-		time: "",
+		startDate: "",
+		endDate: "",
+		startTime: "",
+		endTime: "",
 		location: "",
 		description: "",
 		imageUrl: "",
 		isPublished: false,
 		isPaidEvent: false,
-		tickets: [],
+		tickets: [] as TicketForm[],
 	});
 
 	const [selectedFileName, setSelectedFileName] = useState("");
@@ -86,15 +92,18 @@ export function EventFormDialog({
 
 	useEffect(() => {
 		if (event) {
-			const dt = new Date(event.dateTime);
-			const date = dt.toISOString().slice(0, 10);
-			const time = dt.toISOString().slice(11, 16);
+			const startDateObj = new Date(event.startDate);
+			const endDateObj = new Date(event.endDate);
+			const startTimeObj = new Date(event.startTime);
+			const endTimeObj = new Date(event.endTime);
 
 			setFormData({
 				title: event.title,
 				subtitle: event.subtitle ?? "",
-				date,
-				time,
+				startDate: startDateObj.toISOString().slice(0, 10),
+				endDate: endDateObj.toISOString().slice(0, 10),
+				startTime: startTimeObj.toISOString().slice(11, 16),
+				endTime: endTimeObj.toISOString().slice(11, 16),
 				location: event.location,
 				description: event.description ?? "",
 				imageUrl: event.imageUrl ?? "",
@@ -107,8 +116,10 @@ export function EventFormDialog({
 			setFormData({
 				title: "",
 				subtitle: "",
-				date: "",
-				time: "",
+				startDate: "",
+				endDate: "",
+				startTime: "",
+				endTime: "",
 				location: "",
 				description: "",
 				imageUrl: "",
@@ -123,15 +134,18 @@ export function EventFormDialog({
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!formData.date || !formData.time) return;
+		const { startDate, endDate, startTime, endTime } = formData;
+		if (!startDate || !endDate || !startTime || !endTime) return;
 
 		onSave({
 			id: event?.id,
 			title: formData.title,
 			subtitle: formData.subtitle || undefined,
 			description: formData.description || undefined,
-			date: formData.date,
-			time: formData.time,
+			startDate,
+			endDate,
+			startTime,
+			endTime,
 			location: formData.location,
 			imageUrl: formData.imageUrl || event?.imageUrl || undefined,
 			isPublished: formData.isPublished,
@@ -226,23 +240,49 @@ export function EventFormDialog({
 
 						<div className="grid gap-4 sm:grid-cols-2">
 							<div className="space-y-2">
-								<Label htmlFor="date">Date</Label>
+								<Label htmlFor="startDate">Start Date</Label>
 								<Input
-									id="date"
+									id="startDate"
 									type="date"
-									value={formData.date}
-									onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+									value={formData.startDate}
+									onChange={(e) =>
+										setFormData({ ...formData, startDate: e.target.value })
+									}
 									required
 								/>
 							</div>
-
 							<div className="space-y-2">
-								<Label htmlFor="time">Time</Label>
+								<Label htmlFor="endDate">End Date</Label>
 								<Input
-									id="time"
+									id="endDate"
+									type="date"
+									value={formData.endDate}
+									onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+									required
+								/>
+							</div>
+						</div>
+
+						<div className="grid gap-4 sm:grid-cols-2">
+							<div className="space-y-2">
+								<Label htmlFor="startTime">Start Time</Label>
+								<Input
+									id="startTime"
 									type="time"
-									value={formData.time}
-									onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+									value={formData.startTime}
+									onChange={(e) =>
+										setFormData({ ...formData, startTime: e.target.value })
+									}
+									required
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor="endTime">End Time</Label>
+								<Input
+									id="endTime"
+									type="time"
+									value={formData.endTime}
+									onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
 									required
 								/>
 							</div>

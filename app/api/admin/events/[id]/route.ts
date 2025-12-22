@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { db } from "@/db";
-import { events, tickets } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eventAnalytics, events, payments, reservations, tickets } from "@/db/schema";
+import { eq, and, sql } from "drizzle-orm";
 import { requireAdminUser } from "@/lib/admin-auth";
 import { updateEventSchema } from "@/lib/validation/eventValidation";
 import { deleteCloudinaryImage } from "@/lib/cloudinary";
@@ -63,7 +63,10 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
                 ...(rest.title !== undefined && { title: rest.title }),
                 ...(rest.subtitle !== undefined && { subtitle: rest.subtitle }),
                 ...(rest.description !== undefined && { description: rest.description }),
-                ...(rest.dateTime !== undefined && { dateTime: new Date(rest.dateTime) }),
+                ...(rest.startDate !== undefined && { dateTime: new Date(rest.startDate) }),
+                ...(rest.endDate !== undefined && { dateTime: new Date(rest.endDate) }),
+                ...(rest.startTime !== undefined && { dateTime: new Date(rest.startTime) }),
+                ...(rest.endTime !== undefined && { dateTime: new Date(rest.endTime) }),
                 ...(rest.location !== undefined && { location: rest.location }),
                 ...(rest.imageUrl !== undefined && { imageUrl: rest.imageUrl }),
                 ...(rest.imagePublicId !== undefined && { imagePublicId: rest.imagePublicId }),
@@ -105,17 +108,70 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
             .select()
             .from(events)
             .where(eq(events.id, id));
+        
+        if (!existing) {
+            return NextResponse.json({ error: "Event not found" }, { status: 404 });
+        }
 
+        const now = new Date();
+        if (existing.startDate > now) {
+            return NextResponse.json(
+                { error: "Upcoming events cannot be deleted", code: "EVENT_NOT_PASSED" },
+                { status: 400 },
+            );
+        }
+
+
+        // before deleting event
+        const [stats] = await db
+            .select({
+                totalRevenue: sql<number>`COALESCE(SUM(${payments.amount}), 0)`,
+                totalReservations: sql<number>`COUNT(DISTINCT ${reservations.id})`,
+                totalGuests: sql<number>`COALESCE(SUM(${reservations.partySize}), 0)`,
+            })
+            .from(reservations)
+            .leftJoin(payments, eq(payments.reservationId, reservations.id))
+            .where(eq(reservations.eventId, id));
+
+        console.log("stats: ", stats)
+        await db.insert(eventAnalytics).values({
+            eventId: existing.id,
+            title: existing.title,
+            startDate: existing.startDate,
+            endDate: existing.endDate,
+            totalGuests: Number(stats.totalGuests ?? 0),
+            totalReservations: Number(stats.totalReservations ?? 0),
+            totalRevenue: stats.totalRevenue.toString() ?? "0",
+        });
+
+
+        // then delete -> cascades clean up operational tables
         await db.delete(events).where(eq(events.id, id));
+
 
         if (existing?.imagePublicId) {
             deleteCloudinaryImage(existing.imagePublicId);
         }
         return NextResponse.json({ ok: true });
     } catch (e) {
-        if ((e as Error).message === "UNAUTHORIZED") {
+        console.error("Error deleting event", e);
+        if ((e as any).message === "UNAUTHORIZED") {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
-        return NextResponse.json({ error: "Server error" }, { status: 500 });
+
+        // expose more info while debugging
+        const err = e as any;
+        return NextResponse.json(
+            {
+                error: "Server error",
+                detail: {
+                    message: err.message,
+                    stack: err.stack,
+                    cause: err.cause,
+                },
+            },
+            { status: 500 },
+        );
     }
+
 }

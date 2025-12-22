@@ -8,6 +8,7 @@ import { ArrowLeft, Calendar, MapPin } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import Footer from "@/app/components/Footer";
+import { PublicEventRecord } from "@/types/events";
 
 type PublicTicket = {
 	id: number;
@@ -19,22 +20,10 @@ type PublicTicket = {
 	isActive: boolean;
 };
 
-type PublicEvent = {
-	id: number;
-	title: string;
-	subtitle: string | null;
-	description: string | null;
-	dateTime: string;
-	location: string;
-	imageUrl: string | null;
-	isPaidEvent: boolean;
-	isPublished: boolean;
-};
-
 export default function EventDetailPage() {
 	const params = useParams<{ id: string }>();
 	const router = useRouter();
-	const [event, setEvent] = useState<PublicEvent | null>(null);
+	const [event, setEvent] = useState<PublicEventRecord | null>(null);
 	const [tickets, setTickets] = useState<PublicTicket[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null);
@@ -77,7 +66,7 @@ export default function EventDetailPage() {
 					throw new Error("Failed to load event");
 				}
 				const data = (await res.json()) as {
-					event: PublicEvent;
+					event: PublicEventRecord;
 					tickets: PublicTicket[];
 				};
 				setEvent(data.event);
@@ -111,7 +100,15 @@ export default function EventDetailPage() {
 		);
 	}
 
-	const dt = new Date(event.dateTime);
+	const start = new Date(event.startDate);
+	const end = new Date(event.endDate);
+	const startTime = new Date(event.startTime);
+	const endTime = new Date(event.endTime);
+
+	const sameDay = event.startDate === event.endDate;
+	const sameTime = event.startTime === event.endTime;
+
+	// const dt = new Date(event.dateTime);
 
 	return (
 		<div className="relative min-h-screen flex flex-col justify-center w-full">
@@ -167,18 +164,33 @@ export default function EventDetailPage() {
 										<Calendar className="h-5 w-5 text-neutral-500" />
 										<div>
 											<div className="font-medium">
-												{dt.toLocaleDateString("en-US", {
-													weekday: "long",
-													month: "long",
-													day: "numeric",
-													year: "numeric",
-												})}
+												{sameDay
+													? start.toLocaleDateString("en-US", {
+															month: "short",
+															day: "numeric",
+															year: "numeric",
+													  })
+													: `${start.toLocaleDateString("en-US", {
+															month: "short",
+															day: "numeric",
+													  })} – ${end.toLocaleDateString("en-US", {
+															month: "short",
+															day: "numeric",
+													  })}`}
 											</div>
 											<div className="text-xs text-neutral-500">
-												{dt.toLocaleTimeString("en-US", {
-													hour: "2-digit",
-													minute: "2-digit",
-												})}
+												{sameTime
+													? startTime.toLocaleTimeString("en-US", {
+															hour: "2-digit",
+															minute: "2-digit",
+													  })
+													: `${startTime.toLocaleTimeString("en-US", {
+															hour: "2-digit",
+															minute: "2-digit",
+													  })} – ${endTime.toLocaleTimeString("en-US", {
+															hour: "2-digit",
+															minute: "2-digit",
+													  })}`}
 											</div>
 										</div>
 									</div>
@@ -274,7 +286,6 @@ export default function EventDetailPage() {
 
 												{/* Checkout CTA */}
 												<div className="mt-6 flex flex-col gap-4">
-
 													<Button
 														className="w-full md:w-auto"
 														onClick={() => {
