@@ -33,6 +33,14 @@ export const users = pgTable("users", {
 	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
+export const staffSettings = pgTable("staff_settings", {
+	id: serial("id").primaryKey(),
+	passwordHash: text("password_hash").notNull(),
+	isEnabled: boolean("is_enabled").notNull().default(true),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
+
 // =====================
 // Events & Reservations
 // =====================

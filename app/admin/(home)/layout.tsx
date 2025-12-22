@@ -13,6 +13,7 @@ import {
 	ClipboardList,
 	MessageSquare,
 	Settings,
+	Ticket,
 	LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ import { signOut } from "next-auth/react";
 
 const navItems = [
 	{ href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-	{ href: "/admin/events", label: "Events", icon: Calendar },
+	{ href: "/admin/events", label: "Events", icon: Ticket },
 	{ href: "/admin/menu", label: "Menu", icon: UtensilsCrossed },
 	{ href: "/admin/reservations", label: "Reservations", icon: ClipboardList },
 	{ href: "/admin/contact-messages", label: "Contact", icon: MessageSquare },
