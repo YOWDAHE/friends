@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
 	Sheet,
@@ -7,8 +8,10 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from "@/components/ui/sheet";
-import { Calendar, MapPin, Users } from "lucide-react";
+import { Calendar, Download, MapPin, Users } from "lucide-react";
 import type { EventRecord } from "@/types/events";
+import { Button } from "../ui/button";
+import { Spinner } from "../ui/spinner";
 
 type TicketDetail = {
 	id?: number;
@@ -29,11 +32,33 @@ interface EventDetailSheetProps {
 	event: EventWithTickets;
 }
 
-// Mock reservations for now
-const mockReservations = [
-	{ id: "1", name: "John Smith", partySize: 2, status: "confirmed" },
-	// ...
-];
+type ReservationRow = {
+	id: number;
+	name: string;
+	email: string;
+	phone: string;
+	partySize: number;
+	createdAt: string | null;
+};
+
+function ExportReservationsButton({ eventId }: { eventId: number }) {
+	const handleExport = () => {
+		const url = `/api/admin/events/${eventId}/reservations-export`;
+		window.location.href = url;
+	};
+
+	return (
+		<Button
+			type="button"
+			variant="outline"
+			className="gap-2"
+			onClick={handleExport}
+		>
+			<Download className="h-4 w-4" />
+			Export CSV
+		</Button>
+	);
+}
 
 export function EventDetailSheet({
 	open,
@@ -47,11 +72,41 @@ export function EventDetailSheet({
 
 	const activeTickets = (event.tickets ?? []).filter((t) => t.isActive ?? true);
 
+	const [reservations, setReservations] = useState<ReservationRow[]>([]);
+	const [loadingReservations, setLoadingReservations] = useState(false);
+
+	useEffect(() => {
+		const loadReservations = async () => {
+			if (!open) return;
+			try {
+				setLoadingReservations(true);
+				const res = await fetch(`/api/admin/events/${event.id}/reservations`);
+				if (!res.ok) throw new Error("Failed to load reservations");
+				const data = (await res.json()) as { reservations: ReservationRow[] };
+				setReservations(data.reservations ?? []);
+			} catch (e) {
+				console.error("Error loading event reservations", e);
+			} finally {
+				setLoadingReservations(false);
+			}
+		};
+		loadReservations();
+	}, [open, event.id]);
+
+	const totalReservations = reservations.length;
+	const totalGuests = reservations.reduce(
+		(sum, r) => sum + (r.partySize ?? 0),
+		0
+	);
+
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
 			<SheetContent className="w-full overflow-y-auto p-8 sm:max-w-lg">
 				<SheetHeader>
-					<SheetTitle>Event Details</SheetTitle>
+					<div className="flex items-center justify-between gap-2">
+						<SheetTitle>Event Details</SheetTitle>
+						<ExportReservationsButton eventId={event.id} />
+					</div>
 				</SheetHeader>
 
 				<div className="mt-6 space-y-6">
@@ -85,8 +140,8 @@ export function EventDetailSheet({
 										weekday: "short",
 										month: "short",
 										day: "numeric",
-										// year: "numeric",
-									})} -
+									})}{" "}
+									-{" "}
 									{ed.toLocaleDateString("en-US", {
 										weekday: "short",
 										month: "short",
@@ -98,7 +153,8 @@ export function EventDetailSheet({
 									{st.toLocaleTimeString("en-US", {
 										hour: "2-digit",
 										minute: "2-digit",
-									})} -
+									})}{" "}
+									-{" "}
 									{et.toLocaleTimeString("en-US", {
 										hour: "2-digit",
 										minute: "2-digit",
@@ -114,14 +170,16 @@ export function EventDetailSheet({
 
 						<div className="flex items-center gap-3">
 							<Users className="h-5 w-5 text-gray-400" />
-							<div className="font-medium">{mockReservations.length} Reservations</div>
+							<div className="font-medium">
+								{totalReservations} reservations • {totalGuests} guests
+							</div>
 						</div>
 					</div>
 
 					{/* Description */}
 					<div>
 						<h3 className="mb-2 font-semibold">Description</h3>
-						<p className="text-gray-600 whitespace-pre-line">{event.description}</p>
+						<p className="whitespace-pre-line text-gray-600">{event.description}</p>
 					</div>
 
 					{/* Tickets */}
@@ -154,24 +212,40 @@ export function EventDetailSheet({
 
 					{/* Reservations */}
 					<div>
-						<h3 className="mb-3 font-semibold">Event Reservations</h3>
+						<div className="mb-3 flex items-center justify-between">
+							<h3 className="font-semibold">Event Reservations</h3>
+							{loadingReservations && (
+								<div className="flex items-center gap-2 text-xs text-gray-500">
+									<Spinner className="h-3 w-3" /> Loading…
+								</div>
+							)}
+						</div>
 						<div className="space-y-2">
-							{mockReservations.map((reservation) => (
+							{reservations.length === 0 && !loadingReservations && (
+								<p className="text-sm text-gray-500">
+									No reservations for this event yet.
+								</p>
+							)}
+
+							{reservations.map((reservation) => (
 								<div
 									key={reservation.id}
 									className="flex items-center justify-between rounded-lg border bg-white p-3"
 								>
 									<div>
 										<div className="font-medium">{reservation.name}</div>
+										<div className="text-xs text-gray-500">
+											{reservation.email} · {reservation.phone}
+										</div>
 										<div className="text-sm text-gray-500">
 											Party of {reservation.partySize}
 										</div>
 									</div>
-									<Badge
-										variant={reservation.status === "confirmed" ? "default" : "secondary"}
-									>
-										{reservation.status}
-									</Badge>
+									{reservation.createdAt && (
+										<div className="ml-4 text-xs text-gray-500 text-right">
+											{new Date(reservation.createdAt).toLocaleString()}
+										</div>
+									)}
 								</div>
 							))}
 						</div>

@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -22,6 +22,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { signOut } from "next-auth/react";
+import { Spinner } from "@/components/ui/spinner";
 
 const navItems = [
 	{ href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -133,7 +134,7 @@ export default function AdminLayout({
 								onClick={() =>
 									signOut({
 										redirect: true,
-										callbackUrl: "/admin/login"
+										callbackUrl: "/admin/login",
 									})
 								}
 							>
@@ -155,7 +156,7 @@ export default function AdminLayout({
 					{/* Main Content */}
 					<main className="flex-1 p-4 lg:p-8 max-w-[1400px]">
 						<div className="mx-auto max-w-6xl h-[calc(100vh-150px)] overflow-scroll no-scrollbar rounded-xl bg-white/60 p-6 shadow-lg backdrop-blur-sm lg:p-8">
-							{children}
+							<Suspense fallback={ <Spinner/> }>{children}</Suspense>
 						</div>
 					</main>
 				</div>

@@ -139,7 +139,7 @@ export default function AdminSettingsPage() {
 			});
 			const data = await res.json().catch(() => null);
 			if (!res.ok) {
-				setStaffMessage(data?.error ?? "Failed to update staff settings");
+				setStaffMessage(data?.details.fieldErrors.password ?? "Failed to update staff settings");
 				return;
 			}
 			setStaffPassword("");
@@ -218,7 +218,7 @@ export default function AdminSettingsPage() {
 					</div>
 
 					{passwordMessage && (
-						<p className="text-sm text-gray-600">{passwordMessage}</p>
+						<p className="text-sm text-red-600">{passwordMessage}</p>
 					)}
 
 					<Button type="submit" disabled={passwordSaving}>
@@ -267,7 +267,7 @@ export default function AdminSettingsPage() {
 						</p>
 					)}
 
-					{staffMessage && <p className="text-sm text-gray-600">{staffMessage}</p>}
+					{staffMessage && <p className="text-sm text-red-600">{staffMessage}</p>}
 
 					<Button type="submit" disabled={staffSaving}>
 						{staffSaving ? "Saving…" : "Save staff settings"}
